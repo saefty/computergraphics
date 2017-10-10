@@ -6,8 +6,8 @@ import java.io.IOException;
 import taher858897.Image;
 
 public class Main {
-    static int width = 720;
-    static int height = 480;
+    static int width = 160;
+    static int height = 160;
 
     public static void main(String[] args) {
         Image image = new Image(width, height);
@@ -18,7 +18,7 @@ public class Main {
             }
         }
 
-        String filename = "doc/a01.png";
+        String filename = "doc/a01-checkerboard.png";
         try {
             image.write(filename);
             System.out.println("Wrote image: " + filename);
@@ -28,8 +28,12 @@ public class Main {
     }
 
     static Vec3 pixelColor(int x, int y) {
-        double transition = ((double) x)/width;
-        return vec3(0+0.3*transition, 0.4+0.1*transition, 0.1+0.8*transition);
+        double transition = ((double) x )/width;
 
+        if (x % 16 < 8 && y % 16 < 8)
+            return  vec3(0,0,0);
+        if (x % 16 >= 8 && y % 16 >= 8)
+            return  vec3(0,0,0);
+        return vec3(0+0.3*transition, 0.4+0.1*transition, 0.1+0.8*transition);
     }
 }
