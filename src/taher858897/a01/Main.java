@@ -28,12 +28,13 @@ public class Main {
     }
 
     static Vec3 pixelColor(int x, int y) {
-        double transition = ((double) x )/width;
+        double linear_transistion = ((double) x )/width;
 
         if (x % 16 < 8 && y % 16 < 8)
             return  vec3(0,0,0);
+
         if (x % 16 >= 8 && y % 16 >= 8)
             return  vec3(0,0,0);
-        return vec3(0+0.3*transition, 0.4+0.1*transition, 0.1+0.8*transition);
+        return vec3(0 + 0.3 * linear_transistion, 0.4 + 0.1 * linear_transistion, 0.1 + 0.8 * linear_transistion);
     }
 }
