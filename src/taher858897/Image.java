@@ -5,9 +5,10 @@ import cgtools.Vec3;
 import java.io.IOException;
 
 public class Image {
-    double[] image;
-    int width;
-    int height;
+    private double[] image;
+    private int width;
+    private int height;
+
     public Image(int width, int height) {
         image = new double[width*height*3];
         this.width = width;
@@ -25,5 +26,14 @@ public class Image {
     public void write(String filename) throws IOException {
         ImageWriter w = new ImageWriter(image, width, height);
         w.write(filename);
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+
+    public int getHeight() {
+        return height;
     }
 }
