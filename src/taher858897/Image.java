@@ -17,7 +17,6 @@ public class Image {
 
     public void setPixel(int x, int y, Vec3 color) {
         int index = (y * this.width + x) * 3;
-        System.out.println(index);
         image[index] = color.x;
         image[index + 1] = color.y;
         image[index + 2] = color.z;
