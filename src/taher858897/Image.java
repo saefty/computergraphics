@@ -2,7 +2,9 @@ package taher858897;
 
 import cgtools.ImageWriter;
 import cgtools.Vec3;
+
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Image {
     private double[] image;
@@ -13,7 +15,6 @@ public class Image {
         image = new double[width*height*3];
         this.width = width;
         this.height = height;
-        System.out.println(image.length);
     }
 
     public void setPixel(int x, int y, Vec3 color) {
@@ -36,4 +37,5 @@ public class Image {
     public int getHeight() {
         return height;
     }
+
 }
