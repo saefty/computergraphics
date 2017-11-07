@@ -2,6 +2,7 @@ package taher858897;
 
 import cgtools.ImageWriter;
 import cgtools.Vec3;
+import taher858897.a04.Sampler.Sampler;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,10 +25,19 @@ public class Image {
         image[index + 2] = color.z;
     }
 
+    public void sample(Sampler sampler){
+        for (int x = 0; x != width; x++) {
+            for (int y = 0; y != height; y++) {
+                setPixel(x, y, sampler.color(x, y));
+            }
+        }
+    }
+
     public void write(String filename) throws IOException {
         ImageWriter w = new ImageWriter(image, width, height);
         w.write(filename);
     }
+
 
     public int getWidth() {
         return width;
