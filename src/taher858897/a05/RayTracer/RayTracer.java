@@ -18,8 +18,22 @@ public class RayTracer implements Sampler {
     @Override
     public Vec3 color(double x, double y) {
         Ray r = camera.generateRay(x, y);
-        Hit h = scene.intersect(r);
+        return radiance(r,8);
+    }
 
-        return h.color;
+
+    private Vec3 radiance(Ray r, int depth) {
+        if (depth == 0) return Vec3.black;
+
+        Hit newHit = scene.intersect(r);
+
+        Vec3 emittedRadiance = newHit.material.emittedRadiance(r, newHit);
+        Ray scatteredRay = newHit.material.scatteredRay(r, newHit);
+
+        if (scatteredRay != null){
+            return Vec3.add(emittedRadiance, Vec3.multiply(newHit.material.albedo(r, newHit), radiance(scatteredRay, depth - 1)));
+        }
+        else
+            return emittedRadiance;
     }
 }

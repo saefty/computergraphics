@@ -1,28 +1,33 @@
 package taher858897.a05.Shape;
 
 import cgtools.Vec3;
+import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
 public class Plane implements Shape {
     final Vec3 norm_vec;
     final Vec3 position;
-    final Vec3 color;
+    final Material material;
 
-    public Plane(Vec3 postion, Vec3 norm_vec, Vec3 color) {
-        this.norm_vec = norm_vec;
+    public Plane(Vec3 postion, Vec3 norm_vec, Material material) {
+        this.norm_vec = Vec3.normalize(norm_vec);
         this.position = postion;
-        this.color = color;
+        this.material = material;
     }
 
     @Override
     public Hit intersect(Ray r) {
-        Vec3 tmpX0 = new Vec3(r.o.x - position.x, r.o.y - position.y,r.o.z - position.z);
-        double up = - Vec3.dotProduct(norm_vec, tmpX0);
+        Vec3 sub_R_origin = Vec3.multiply(-1 ,r.o);
+        double up = Vec3.dotProduct(
+                Vec3.add(position, sub_R_origin),
+                norm_vec);
         double down = Vec3.dotProduct(norm_vec, r.d);
         if (down == 0) return null;
         double t = up/down;
-        if (t < 0 ) return  null;
-        return new Hit(t, norm_vec, r.pointAt(t), color);
+        if (t < r.t0 ) return  null;
+        if (t == 0)
+            return null;
+        return new Hit(t, norm_vec, r.pointAt(t), material);
     }
 }

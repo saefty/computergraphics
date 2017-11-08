@@ -18,7 +18,7 @@ public class StationaryCamera implements Camera {
     public Ray generateRay(double x, double y){
         Vec3 o = new Vec3(0);
         Vec3 d = genDirection(x,y);
-        return new Ray(o,d,0, Double.MAX_VALUE);
+        return new Ray(o,d,0, Double.POSITIVE_INFINITY);
     }
 
     private Vec3 genDirection(double x, double y){

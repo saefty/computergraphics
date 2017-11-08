@@ -1,19 +1,20 @@
 package taher858897.a05.Shape;
 
 import cgtools.Vec3;
+import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.RayTracer.Ray;
 
-public class Sphere implements Shape, Sampler {
+public class Sphere implements Shape {
     final Vec3 position;
     final double radius;
-    final Vec3 color;
+    final Material material;
 
-    public Sphere(Vec3 position, double radius, Vec3 color) {
+    public Sphere(Vec3 position, double radius,Material material) {
         this.position = position;
         this.radius = radius;
-        this.color = color;
+        this.material = material;
     }
 
     public boolean contains(Vec3 x) {
@@ -65,11 +66,11 @@ public class Sphere implements Shape, Sampler {
         else if (t2 >= 0 && discriminant == 0)
             result = t2;
         else if (discriminant > 0)
-            if (t1 >= 0 && t2 >= 0)
+            if (t1 > 0 && t2 > 0)
                 result = Math.min(t1, t2);
-            else if (t1 >= 0)
+            else if (t1 > 0)
                 result = t1;
-            else if (t2 >= 0)
+            else if (t2 > 0)
                 result = t2;
 
         if (r.t0 > result || r.t1 < result) return null;
@@ -81,12 +82,6 @@ public class Sphere implements Shape, Sampler {
                         hitPoint
                 ),
                 hitPoint,
-                color
-        );
-    }
-
-    @Override
-    public Vec3 color(double x, double y) {
-        return color;
+                material);
     }
 }

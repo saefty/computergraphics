@@ -1,19 +1,20 @@
 package taher858897.a05.Shape;
 
 import cgtools.Vec3;
+import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
 public class Background implements Shape {
-    public final Vec3 color;
+    public final Material material;
 
-    public Background(Vec3 color) {
-        this.color = color;
+    public Background(Material material) {
+        this.material = material;
     }
 
     @Override
     public Hit intersect(Ray r) {
-        if (r.t0 < 0 || r.t1 < Double.MAX_VALUE) return null;
-        return new Hit(Double.MAX_VALUE, new Vec3(0,0,1), new Vec3(0,0, Double.MAX_VALUE), color);
+        if (r.t1 < Double.POSITIVE_INFINITY) return null;
+        return new Hit(Double.POSITIVE_INFINITY, new Vec3(0,0,0), new Vec3(0,0,0), material);
     }
 }

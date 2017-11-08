@@ -1,14 +1,18 @@
 package taher858897.a05;
 
+import cgtools.Random;
+import cgtools.Vec3;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
 import taher858897.a05.Camera.StationaryCamera;
+import taher858897.a05.Material.BackgroundMaterial;
+import taher858897.a05.Material.DiffuseMaterial;
+import taher858897.a05.Material.Material;
 import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.Sampler.StratifiedSampler;
 import taher858897.a05.Shape.*;
 import taher858897.a05.RayTracer.RayTracer;
 import taher858897.a05.Sampler.GammaSampler;
-import taher858897.a05.a04.Shape.*;
 
 import java.io.IOException;
 
@@ -19,7 +23,7 @@ public class Main {
     private static int height = 90 * 12;
 
     private static final double GAMMA = 2.2;
-    private static final int SAMPLING_RATE = 2;
+    private static final int SAMPLING_RATE = 255;
 
 
     public static Sampler raytrace(Group scene, Camera camera, int sample_rate){
@@ -32,28 +36,51 @@ public class Main {
         Image image = new Image(width, height);
 
         StationaryCamera stationaryCamera = new StationaryCamera(Math.PI/2, width, height);
-        Background bg = new Background(white);
+        Background bg = new Background(new BackgroundMaterial(new Vec3(.8)));
 
-        Shape ground = new Plane(vec3(2.0, 0.0, 0.0), vec3(1, 0, 0), vec3(.5,.5,.5));
-        Shape ground2 = new Plane(vec3(-2, -0.5, 0.0), vec3(1, .3, -0.3), vec3(.9,.5,.0));
-        Shape ground3 = new Plane(vec3(-2, -0.5, 0.0), vec3(0, 1, -0.0), vec3(.1,.8,.25));
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.5)));
 
 
-        Shape globe1 = new Sphere(vec3(-2.0, -0.3, -1.5), 0.4, red);
-        Shape globe2 = new Sphere(vec3(-2.0, -0.3, -3), 0.5, green);
-        Shape globe3 = new Sphere(vec3(-2.0, -0.3, -6.5), 0.8, blue);
+        Shape globe1 = new Sphere(vec3(-2.5, 0, -1.5), 0.5, new DiffuseMaterial(red));
+        Shape globe2 = new Sphere(vec3(-2.0, 0, -3), 0.8, new DiffuseMaterial(green));
+        Shape globe3 = new Sphere(vec3(-2.5, 0, -6.5), 0.8, new DiffuseMaterial(red));
 
-        Shape globe4 = new Sphere(vec3(2.0, -0.3, -1.5), 0.4, blue);
-        Shape globe5 = new Sphere(vec3(2.0, -0.3, -3), 0.5, red);
-        Shape globe6 = new Sphere(vec3(2.0, -0.3, -6.5), 0.8, green);
-        Group scene = new Group(ground, globe1, globe2, globe3, bg, ground2, ground3, globe4, globe5, globe6);
+        Shape globe4 = new Sphere(vec3(2.5, 0, -1.5), 0.5, new DiffuseMaterial(green));
+        Shape globe5 = new Sphere(vec3(2.0, 0, -3), 0.8, new DiffuseMaterial(red));
+        Shape globe6 = new Sphere(vec3(2.5, 0, -6.5), 0.8,new DiffuseMaterial(green));
+
+        Shape le_eye = new Sphere(vec3(-0.065, 0.55 -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
+        Shape re_eye = new Sphere(vec3(0.065, 0.55  -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
+        Shape globe9 = new Sphere(vec3(0.0, 0.5     -  .2, -2.5+.5), .21 ,new DiffuseMaterial(vec3(.8)));
+        Shape globe8 = new Sphere(vec3(0.0, .1      -  .2, -2.5+.5), .33, new DiffuseMaterial(vec3(.8)));
+        Shape globe10 = new Sphere(vec3(0.0, -.5    -  .2, -2.5+.5), .4 ,new DiffuseMaterial(vec3(.8)));
+        Group snowMan = new Group(re_eye,le_eye, globe8,globe9,globe10);
+
+        le_eye = new Sphere(vec3(-0.065 -.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
+         re_eye = new Sphere(vec3(0.065-.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
+         globe9 = new Sphere(vec3(0.0-.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
+         globe8 = new Sphere(vec3(0.0-.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
+         globe10 = new Sphere(vec3(0.0-.6, -.5    -  .2, -2.5), .4 ,new DiffuseMaterial(vec3(.8)));
+        Group snowMan1 = new Group(re_eye,le_eye, globe8,globe9,globe10);
+
+        le_eye = new Sphere(vec3(-0.065 +.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
+        re_eye = new Sphere(vec3(0.065+.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
+        globe9 = new Sphere(vec3(0.0+.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
+        globe8 = new Sphere(vec3(0.0+.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
+        globe10 = new Sphere(vec3(0.0+.6, -.5    -  .2, -2.5), .4 ,new DiffuseMaterial(vec3(.8)));
+        Group snowMan2 = new Group(re_eye,le_eye, globe8,globe9,globe10);
+
+        Group scene = new Group(bg, ground, globe1, globe5,globe1 , globe2, globe3, globe4, globe6, snowMan,snowMan1, snowMan2); //
 
         Sampler s = raytrace(scene, stationaryCamera, SAMPLING_RATE);
 
-        image.sample(s);
+        ImageMultithread imageMultithread = new ImageMultithread(image, s);
+        imageMultithread.startMultiThreading();
+
+        //image.sample(s);
 
 
-        String filename = "doc/a04-scene.png";
+        String filename = "doc/a05-scene.png";
         try {
             System.out.println("Start writing image: " + filename);
 
