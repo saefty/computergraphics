@@ -5,6 +5,8 @@ import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import static taher858897.a05.Shape.Shape.EPSILON;
+
 public class DiffuseMaterial implements Material{
     final Vec3 color;
 
@@ -20,9 +22,9 @@ public class DiffuseMaterial implements Material{
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
         Vec3 rndD = rndDirection();
-        rndD = Vec3.add(h.normVec, rndD);
         rndD = Vec3.normalize(rndD);
-        return new Ray(h.position, rndD,0, Double.POSITIVE_INFINITY);
+        rndD = Vec3.add(h.normVec, rndD);
+        return new Ray(h.position, rndD, EPSILON, Double.POSITIVE_INFINITY);
     }
 
     public Vec3 rndDirection(){

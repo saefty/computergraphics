@@ -53,15 +53,12 @@ public class Sphere implements Shape {
 
         double t1 = -(b  + d_sqrt)/(2*a);
         double t2 = -(b - d_sqrt)/(2*a);
-        /*System.out.println("a " + a);
-        System.out.println("b " + b);
-        System.out.println("c " + c);
-        System.out.println("t1 " + t1);
-        System.out.println("t2 " + t2);
-        System.out.println("discre " + discriminant);*/
 
         double result = -1;
-        if (t1 >= 0 && discriminant == 0)
+        double t = Math.min(t1, t2);
+        if (t <= 0) t = Math.max(t1, t2);
+        result = t;
+        /*if (t1 >= 0 && discriminant == 0)
             result = t1;
         else if (t2 >= 0 && discriminant == 0)
             result = t2;
@@ -71,7 +68,7 @@ public class Sphere implements Shape {
             else if (t1 > 0)
                 result = t1;
             else if (t2 > 0)
-                result = t2;
+                result = t2;*/
 
         if (r.t0 > result || r.t1 < result) return null;
         Vec3 hitPoint = r.pointAt(result);

@@ -7,10 +7,12 @@ import static cgtools.Vec3.*;
 public class StratifiedSampler implements Sampler {
     Sampler sampler;
     int n;
+    int amount;
 
     public StratifiedSampler(Sampler sampler, int n) {
         this.sampler = sampler;
         this.n = (int) Math.ceil(Math.sqrt(n));
+        this.amount = this.n* this.n;
     }
 
     public Vec3 color(double x, double y) {
@@ -24,6 +26,6 @@ public class StratifiedSampler implements Sampler {
                 color = add(color, sampler.color(xs, ys));
             }
         }
-        return divide(color, n * n);
+        return divide(color, this.amount);
     }
 }

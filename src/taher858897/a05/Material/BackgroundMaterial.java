@@ -23,6 +23,6 @@ public class BackgroundMaterial implements Material{
 
     @Override
     public Vec3 albedo(Ray r, Hit h) {
-        return color;
+        return Vec3.black;
     }
 }

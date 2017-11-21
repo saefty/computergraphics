@@ -3,7 +3,9 @@ package taher858897.a05.RayTracer;
 import cgtools.Vec3;
 import taher858897.a05.Material.Material;
 
-public class Hit {
+import java.io.Serializable;
+
+public class Hit implements Serializable{
     public final double t;
     public final Vec3 normVec;
     public final Vec3 position;

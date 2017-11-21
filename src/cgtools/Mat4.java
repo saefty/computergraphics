@@ -1,5 +1,7 @@
 package cgtools;
 
+import java.io.Serializable;
+
 import static cgtools.Vec3.*;
 
 /**
@@ -9,7 +11,7 @@ import static cgtools.Vec3.*;
  *
  * @author henrik
  */
-public final class Mat4 {
+public final class Mat4 implements Serializable {
     /** <code>identity</code> The identity matrix. */
     public static final Mat4 identity = new Mat4().makeIdentity();
 

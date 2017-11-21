@@ -5,6 +5,8 @@ import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import static taher858897.a05.Shape.Shape.EPSILON;
+
 public class ReflectionMaterial implements Material{
     final Vec3 color;
     final double rnd_factor;
@@ -22,7 +24,7 @@ public class ReflectionMaterial implements Material{
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
         Vec3 reflectedDirection = reflectedDirection(r, h);
-        return new Ray(h.position, reflectedDirection,0, Double.POSITIVE_INFINITY);
+        return new Ray(h.position, reflectedDirection, EPSILON, Double.POSITIVE_INFINITY);
     }
 
     public Vec3 rndDirection(){

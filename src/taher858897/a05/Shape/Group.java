@@ -1,16 +1,23 @@
 package taher858897.a05.Shape;
 
+import cgtools.Vec3;
+import taher858897.a05.Material.DiffuseMaterial;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Group implements Shape {
     final ArrayList<Shape> shapes;
+    private Cube hitBox;
 
     public Group(ArrayList<Shape> shapes) {
         this.shapes = shapes;
+    }
+    public Group() {
+        this.shapes = new ArrayList<>();
     }
 
     public Group(Shape s1, Shape... sN){
@@ -19,6 +26,22 @@ public class Group implements Shape {
         this.shapes.addAll(Arrays.asList(sN));
     }
 
+    public ArrayList<Shape> getShapes() {
+        return shapes;
+    }
+
+    public void addShape(Shape e){
+        if (e == null) return;
+        shapes.add(e);
+    }
+
+    public void addShapes(Shape ... sN){
+        shapes.addAll(Arrays.asList(sN));
+    }
+
+    public void addShapes(ArrayList sN){
+        shapes.addAll(sN);
+    }
 
 
     @Override

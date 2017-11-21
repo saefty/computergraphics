@@ -17,4 +17,5 @@ public class Background implements Shape {
         if (r.t1 < Double.POSITIVE_INFINITY) return null;
         return new Hit(Double.POSITIVE_INFINITY, new Vec3(0,0,0), new Vec3(0,0,0), material);
     }
+
 }

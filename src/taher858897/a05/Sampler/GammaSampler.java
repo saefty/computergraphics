@@ -11,10 +11,10 @@ public class GammaSampler implements Sampler {
         GAMMA = gamma;
     }
     public Vec3 gamma(Vec3 vec3) {
-        double x = Math.pow(vec3.x, 1.0 / GAMMA);
-        double y = Math.pow(vec3.y, 1.0 / GAMMA);
-        double z = Math.pow(vec3.z, 1.0 / GAMMA);
-        return new Vec3(x, y, z);
+        return new Vec3(
+                Math.pow(vec3.x, 1.0 / GAMMA),
+                Math.pow(vec3.y, 1.0 / GAMMA),
+                Math.pow(vec3.z, 1.0 / GAMMA));
     }
 
     @Override

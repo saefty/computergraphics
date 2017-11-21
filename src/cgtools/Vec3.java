@@ -5,7 +5,9 @@
  */
 package cgtools;
 
-public class Vec3 {
+import java.io.Serializable;
+
+public class Vec3 implements Serializable {
     public final double x, y, z;
 
     /** Creates a new vector with the given coordinates */

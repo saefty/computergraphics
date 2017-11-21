@@ -2,7 +2,9 @@ package taher858897.a05.RayTracer;
 
 import cgtools.Vec3;
 
-public class Ray {
+import java.io.Serializable;
+
+public class Ray implements Serializable{
     public final Vec3 o;
     public final Vec3 d;
     public final double t0;
@@ -16,7 +18,7 @@ public class Ray {
     }
 
     public Vec3 pointAt(double t){
-        return Vec3.add(o, Vec3.multiply(t,d));
+        return Vec3.add(o, Vec3.multiply(t, d));
     }
 
     public boolean contains(double t){

@@ -1,5 +1,6 @@
 package taher858897.a05.Shape;
 
+import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
@@ -25,9 +26,14 @@ public class Plane implements Shape {
         double down = Vec3.dotProduct(norm_vec, r.d);
         if (down == 0) return null;
         double t = up/down;
-        if (t < r.t0 ) return  null;
-        if (t == 0)
-            return null;
+        if (t <= r.t0 ) return  null;
+        Vec3 norm;
+        if (Vec3.dotProduct(norm_vec, r.d) > 0){
+            norm = norm_vec;
+        }
+        else {
+            norm = Vec3.multiply(norm_vec);
+        }
         return new Hit(t, norm_vec, r.pointAt(t), material);
     }
 }
