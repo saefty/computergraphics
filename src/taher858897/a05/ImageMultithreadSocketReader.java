@@ -1,9 +1,7 @@
 package taher858897.a05;
 
 import taher858897.Image;
-import taher858897.a05.ImageMultithread;
 import taher858897.a05.Sampler.Sampler;
-import taher858897.a05.Shape.Group;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -33,14 +31,11 @@ public class ImageMultithreadSocketReader {
 
                     Sampler sampler = (Sampler) in.readObject();
 
-                    int x_start = (int) in.readObject();
-                    int x_end = (int) in.readObject();
-                    int y_start = (int) in.readObject();
-                    int y_end = (int) in.readObject();
+                    int SAMPLE_RATE = (int) in.readObject();
 
                     System.out.println("done");
 
-                    startMultiThreadRendering(image, sampler, x_start, x_end, y_start, y_end);
+                    startMultiThreadRendering(image, sampler, SAMPLE_RATE);
 
                 } catch (IOException | ClassNotFoundException ignored) {
                     ignored.printStackTrace();
@@ -50,22 +45,14 @@ public class ImageMultithreadSocketReader {
 
     }
 
-    public static void startMultiThreadRendering(Image image, Sampler s, int x_start, int x_end, int y_start, int y_end){
-        image.initLocks();
-        ImageMultithread imageMultithread = new ImageMultithread(16, image, s, x_start, x_end, y_start, y_end);
-        imageMultithread.startMultiThreading();
-        imageMultithread.join();
+    public static void startMultiThreadRendering(Image image, Sampler s, int SAMPLE_RATE){
+        SampleMultithread sampleMultithread = new SampleMultithread(image, s, SAMPLE_RATE, 8);
+        sampleMultithread.startMultiThreading();
+        sampleMultithread.join();
         System.out.println("done");
-
-        /*String filename = "doc/a061-scene.png";
-        try {
-            System.out.println("Start writing image: " + filename);
-
-            image.write(filename);
-            System.out.println("Wrote image: " + filename);
-        } catch (IOException error) {
-            System.out.println(String.format("Something went wrong writing: %s: %s", filename, error));
-        }*/
+        System.out.println("Start merging images");
+        image = sampleMultithread.getImages();
+        System.out.println("Done merging images");
 
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());

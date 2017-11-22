@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 
-public class Image implements Serializable{
+public class Image implements Serializable, Sampler{
     private double[] image;
     private int width;
     private int height;
@@ -24,11 +24,14 @@ public class Image implements Serializable{
         this.height = height;
     }
 
-    public void initLocks(){
-        /*index_locks = new Object[width*height*3];
-        for (int i = 0; i < index_locks.length; i++) {
-            index_locks[i] = new Object();
-        }*/
+    /**
+     * Copy ctor
+     * @param i
+     */
+    public Image(Image i){
+        width = i.width;
+        height = i.height;
+        image = new double[width*height*3];
     }
 
     public void merge(Image img, int x_start, int x_end, int y_start, int y_end){
@@ -82,5 +85,32 @@ public class Image implements Serializable{
 
     public int getHeight() {
         return height;
+    }
+
+    public static Image mergeAVG(Image ... images) {
+        double size = images.length;
+        Image result = new Image(images[0]);
+        for (int x = 0; x < result.width; x++) {
+            for (int y = 0; y < result.height; y++) {
+                double sumR = 0;
+                double sumG = 0;
+                double sumB = 0;
+                for (Image i : images){
+                    if (i == null)
+                        return null;
+                    Vec3 color = i.getPixel(x,y);
+                    sumR += color.x;
+                    sumG += color.y;
+                    sumB += color.z;
+                }
+                result.setPixel(x, y, new Vec3(sumR/size, sumG/size, sumB/size));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Vec3 color(double x, double y) {
+        return getPixel((int)x, (int)y);
     }
 }

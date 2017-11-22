@@ -1,7 +1,9 @@
 package taher858897.a05;
 
 import taher858897.Image;
+import taher858897.a05.RayTracer.RayTracer;
 import taher858897.a05.Sampler.Sampler;
+import taher858897.a05.Sampler.StratifiedSampler;
 
 import java.util.ArrayList;
 
@@ -31,7 +33,6 @@ public class ImageMultithread implements Runnable {
     public void startMultiThreading(){
         start_time = System.currentTimeMillis();
         double display_fac = Math.floor((x_end-x_start)/threads_count);
-
         for (int j = 1; j <= threads_count; j++) {
             int this_thread_start_x = (int) (display_fac * (j-1)) + x_start;
             int this_thread_end_x =(int) (display_fac * j) + x_start;
@@ -42,7 +43,6 @@ public class ImageMultithread implements Runnable {
             t.start();
             threads.add(t);
         }
-
     }
 
     public void join(){
