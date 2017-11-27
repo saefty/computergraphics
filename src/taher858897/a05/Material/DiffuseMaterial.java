@@ -23,7 +23,7 @@ public class DiffuseMaterial implements Material{
     public Ray scatteredRay(Ray r, Hit h) {
         Vec3 rndD = rndDirection();
         rndD = Vec3.add(h.normVec, rndD);
-        return new Ray(h.position, rndD, EPSILON, Double.POSITIVE_INFINITY);
+        return new Ray(h.position, Vec3.normalizeFast(rndD), EPSILON, Double.POSITIVE_INFINITY);
     }
 
     public Vec3 rndDirection(){

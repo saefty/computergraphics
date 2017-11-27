@@ -5,6 +5,8 @@ import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import static cgtools.Vec3.dotProduct;
+import static cgtools.Vec3.normalize;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class ReflectionMaterial implements Material{
@@ -23,7 +25,8 @@ public class ReflectionMaterial implements Material{
 
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
-        Vec3 reflectedDirection = reflectedDirection(r, h);
+        Vec3 reflectedDirection = normalize(reflectedDirection(r, h));
+        if(dotProduct(reflectedDirection, h.normVec) < 0) return null;
         return new Ray(h.position, reflectedDirection, EPSILON, Double.POSITIVE_INFINITY);
     }
 
@@ -36,8 +39,8 @@ public class ReflectionMaterial implements Material{
     }
 
     public Vec3 reflectedDirection(Ray r, Hit h){
-        Vec3 refl = Vec3.multiply(-2 * Vec3.dotProduct(h.normVec, r.d), h.normVec);
-        return Vec3.add(r.d, refl, Vec3.multiply(rnd_factor, rndDirection()));
+        Vec3 refl = Vec3.multiply(-2 * dotProduct(h.normVec, r.d), h.normVec);
+        return Vec3.addFast(refl, r.d, Vec3.multiplyFast(rnd_factor, rndDirection()));
     }
 
     @Override

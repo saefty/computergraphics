@@ -75,7 +75,7 @@ public class Image implements Serializable, Sampler{
     public void write(String filename) throws IOException {
         ImageWriter w = new ImageWriter(image, width, height);
         w.write(filename);
-}
+    }
 
 
     public int getWidth() {

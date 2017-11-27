@@ -3,8 +3,12 @@ package taher858897.a05.Shape;
 import cgtools.Vec3;
 import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
-import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.RayTracer.Ray;
+
+import static cgtools.Vec3.dotProduct;
+import static cgtools.Vec3.multiply;
+import static cgtools.Vec3.multiplyFast;
+import static java.lang.Math.signum;
 
 public class Sphere implements Shape {
     final Vec3 position;
@@ -24,16 +28,14 @@ public class Sphere implements Shape {
                         -1,
                         new Vec3(position.x, position.y, position.z)
                 ));
-        return Vec3.dotProduct(tmp, tmp) <= radius*radius;
+        return dotProduct(tmp, tmp) <= radius*radius;
     }
 
     public Vec3 getNormVecAtPoint(Vec3 x){
-        Vec3 tmp = Vec3.add(
+        Vec3 tmp = Vec3.subtract(
                 x,
-                Vec3.multiply(
-                        -1,
-                        new Vec3(position.x, position.y, position.z)
-                ));
+                position
+                );
         return Vec3.divide(tmp, radius);
     }
 
@@ -42,9 +44,9 @@ public class Sphere implements Shape {
         Vec3 tmpX0 = new Vec3(r.o.x - position.x, r.o.y - position.y,r.o.z - position.z);
         //if (Vec3.dotProduct(r.o, position) <= radius*radius) return null;
 
-        double a = Vec3.dotProduct(r.d, r.d);
-        double b = 2 * Vec3.dotProduct(tmpX0, r.d);
-        double c = Vec3.dotProduct(tmpX0, tmpX0) - radius * radius;
+        double a = dotProduct(r.d, r.d);
+        double b = 2 * dotProduct(tmpX0, r.d);
+        double c = dotProduct(tmpX0, tmpX0) - radius * radius;
 
         double discriminant = b * b - 4 * a * c;
 
@@ -72,12 +74,13 @@ public class Sphere implements Shape {
 
         if (r.t0 > result || r.t1 < result) return null;
         Vec3 hitPoint = r.pointAt(result);
-
+        Vec3 norm_vec = getNormVecAtPoint(hitPoint);
+        if (dotProduct(r.d, norm_vec) > 0){
+            norm_vec = multiplyFast(-1, norm_vec);
+        }
         return new Hit(
                 result,
-                getNormVecAtPoint(
-                        hitPoint
-                ),
+                norm_vec,
                 hitPoint,
                 material);
     }

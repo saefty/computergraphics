@@ -8,7 +8,7 @@ package cgtools;
 import java.io.Serializable;
 
 public class Vec3 implements Serializable {
-    public final double x, y, z;
+    public double x, y, z;
 
     /** Creates a new vector with the given coordinates */
     public Vec3(double x, double y, double z) {
@@ -42,6 +42,22 @@ public class Vec3 implements Serializable {
         return r;
     }
 
+    /** Adds the given vectors and returns the first vector. */
+    public static Vec3 addFast(Vec3 a, Vec3... vs) {
+        double x = 0,
+               y = 0,
+               z = 0;
+        for (Vec3 v : vs) {
+            x += v.x;
+            y += v.y;
+            z += v.z;
+        }
+        a.x += x;
+        a.y += y;
+        a.z += z;
+        return a;
+    }
+
     /** Subtracts the first vector from the second and returns a newly allocated
      * vector. */
     public static Vec3 subtract(Vec3 a, Vec3 b) {
@@ -62,10 +78,23 @@ public class Vec3 implements Serializable {
     public static Vec3 multiply(double s, Vec3 a) {
         return vec3(s * a.x, s * a.y, s * a.z);
     }
+    public static Vec3 multiplyFast(double s, Vec3 a) {
+        a.x *= s;
+        a.y *= s;
+        a.z *= s;
+        return a;
+    }
 
     /** Divides the given vector by the scalar value. */
     public static Vec3 divide(Vec3 a, double s) {
         return vec3(a.x / s, a.y / s, a.z / s);
+    }
+
+    public static Vec3 divideFast(Vec3 a, double s) {
+        a.x /= s;
+        a.y /= s;
+        a.z /= s;
+        return a;
     }
 
     /** Calculates the dot product. */
@@ -101,6 +130,14 @@ public class Vec3 implements Serializable {
     /** Returns a normalized copy of the provided vector */
     public static Vec3 normalize(Vec3 a) {
         return divide(a, a.length());
+    }
+
+    public static Vec3 normalizeFast(Vec3 a) {
+        double l = a.length();
+        a.x /= l;
+        a.y /= l;
+        a.z /= l;
+        return a;
     }
 
     @Override

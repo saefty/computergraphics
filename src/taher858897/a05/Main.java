@@ -6,6 +6,7 @@ import taher858897.a05.Camera.Camera;
 import taher858897.a05.Camera.StationaryCamera;
 import taher858897.a05.Material.BackgroundMaterial;
 import taher858897.a05.Material.DiffuseMaterial;
+import taher858897.a05.Material.GlassMaterial;
 import taher858897.a05.Material.ReflectionMaterial;
 import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.Sampler.StratifiedSampler;
@@ -39,11 +40,12 @@ public class Main {
         //cameraTransformation = cameraTransformation.multiply(Mat4.rotate(vec3(0,1,0),-50));
 
         StationaryCamera stationaryCamera = new StationaryCamera(Math.PI/2, width, height);
-        Background bg = new Background(new BackgroundMaterial( new Vec3(.8)));
+        Background bg = new Background(new BackgroundMaterial( new Vec3(.75)));
 
         Group scene = new Group(
             bg,
-            genSnowmanScene()
+            genRubics()
+            //genSnowmanScene()
         );
         Sampler tracer = raytrace(scene, stationaryCamera);
         //image.sample(new StratifiedSampler(tracer, SAMPLING_RATE));
@@ -75,7 +77,7 @@ public class Main {
 
 
 
-        String filename = "doc/a05-diffuse-spheres.png";
+        String filename = "doc/b01.png";
         try {
             System.out.println("Start writing image: " + filename);
 
@@ -169,35 +171,35 @@ public class Main {
     }
 
     public static Group genSnowmanScene(){
-        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(vec3(.5)));
 
-        Shape globe1 = new Sphere(vec3(-2.5, 0, -1.5), 0.5, new DiffuseMaterial(red));
-        Shape globe2 = new Sphere(vec3(-2.0, 0, -3), 0.8, new DiffuseMaterial(new Vec3(0.8)));
+        Shape globe1 = new Sphere(vec3(-2.5, 0, -1.5), 0.5,new GlassMaterial(vec3(1), 1.5,1));
+        Shape globe2 = new Sphere(vec3(-2.0, 0, -3), 0.8,  new GlassMaterial(vec3(.8), 1.5,.0));
         Shape globe3 = new Sphere(vec3(-2.5, 0, -6.5), 0.8, new DiffuseMaterial(red));
 
-        Shape globe4 = new Sphere(vec3(2.5, 0, -1.5), 0.5, new DiffuseMaterial(green));
+        Shape globe4 = new Sphere(vec3(1.5, 0, -1.5), 0.4, new GlassMaterial(green, 3,0));
         Shape globe5 = new Sphere(vec3(2.0, 0, -3), 0.8, new DiffuseMaterial(red));
         Shape globe6 = new Sphere(vec3(2.5, 0, -6.5), 0.8, new DiffuseMaterial(green));
 
         Shape le_eye = new Sphere(vec3(-0.065, 0.55 -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
         Shape re_eye = new Sphere(vec3(0.065, 0.55  -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
-        Shape globe9 = new Sphere(vec3(0.0, 0.5     -  .2, -2.5+.5), .21 ,new DiffuseMaterial(vec3(.8)));
-        Shape globe8 = new Sphere(vec3(0.0, .1      -  .2, -2.5+.5), .33, new DiffuseMaterial(vec3(.8)));
-        Shape globe10 = new Sphere(vec3(0.0, -.5    -  .2, -2.5+.5), .4 ,new DiffuseMaterial(vec3(.3)));
+        Shape globe9 = new Sphere(vec3(0.0, 0.5     -  .2, -2.5+.5), .21, new GlassMaterial(vec3(.6), 1.5,.0));
+        Shape globe8 = new Sphere(vec3(0.0, .1      -  .2, -2.5+.5), .33, new GlassMaterial(vec3(.8), 1.5,.0));
+        Shape globe10 = new Sphere(vec3(0.0, -.5    -  .2, -2.5+.5), .4 , new GlassMaterial(vec3(.8), 1.5,.0));
         Group snowMan = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
         le_eye = new Sphere(vec3(-0.065 -.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
         re_eye = new Sphere(vec3(0.065-.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
-        globe9 = new Sphere(vec3(0.0-.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
-        globe8 = new Sphere(vec3(0.0-.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
-        globe10 = new Sphere(vec3(0.0-.6, -.5    -  .2, -2.5), .4 ,new DiffuseMaterial(vec3(.8)));
+        globe9 = new Sphere(vec3(0.0-.6, 0.5     -  .2, -2.5), .21 ,new GlassMaterial(vec3(.8), 1.5,.0));
+        globe8 = new Sphere(vec3(0.0-.6, .1      -  .2, -2.5), .33, new GlassMaterial(vec3(.8), 1.5,.0));
+        globe10 = new Sphere(vec3(0.0-.6, -.5    -  .2, -2.5), .4 , new GlassMaterial(vec3(.8), 1.5,.0));
         Group snowMan1 = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
         le_eye = new Sphere(vec3(-0.065 +.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
         re_eye = new Sphere(vec3(0.065+.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
-        globe9 = new Sphere(vec3(0.0+.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
-        globe8 = new Sphere(vec3(0.0+.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
-        globe10 = new Sphere(vec3(0.0+.6, -.5    -  .2, -2.5), .4 ,new DiffuseMaterial(vec3(.8)));
+        globe9 = new Sphere(vec3(0.0+.6, 0.5     -  .2, -2.5), .21 ,new GlassMaterial(vec3(1), 1.5,1));
+        globe8 = new Sphere(vec3(0.0+.6, .1      -  .2, -2.5), .33, new GlassMaterial(vec3(1), 1.5,1));
+        globe10 = new Sphere(vec3(0.0+.6, -.5    -  .2, -2.5), .4 ,new GlassMaterial(vec3(1), 1.5,1));
         Group snowMan2 = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
 
@@ -207,11 +209,94 @@ public class Main {
                 new Cube(.5, new Vec3(.25,-0.5,-1.5), new ReflectionMaterial(vec3(.6),.1))
                 );
         Group scene = new Group(ground, globe1, globe5 , globe2, globe3, globe4, globe6,
-                 snowMan1, snowMan2, snowMan
+                snowMan1, snowMan2, snowMan,
+                new Cube(vec3(-.1, -.7, -1.4), vec3(.1, -.5    +  .0, -2.1), new DiffuseMaterial(vec3(0,.5,1))),
+                new Cube(vec3(-.1, -.7+.5, -1.4), vec3(.1, -.5    +  .5, -2.1), new DiffuseMaterial(vec3(0,.5,1))),
+                new Cube(vec3(-1.9, -1, -2.9), vec3(-2.1, 1, -3.1), new DiffuseMaterial(blue)),
+                new Cube(vec3(-.3, -1, -1.2), vec3(.3, -.5, -1.3),  new GlassMaterial(vec3(.8),1.8,.0))
+
         );
 
         return scene;
     }
+
+    public static Group genRubics(){
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(vec3(.5)));
+
+        Group cubeLayer1 = new Group(
+                ground,
+                new Cube(.2, vec3(-1, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1+1, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75+1, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45+1, -.5, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1+1, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75+1, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45+1, -.5, -1.75-.5), new DiffuseMaterial(rndColor())),
+
+                new Cube(.2, vec3(-1, -.5, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.5)),
+                new Cube(.2, vec3(-.75, -.5, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.4)),
+                new Cube(.2, vec3(-.45, -.5, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.3)),
+                new Cube(.2, vec3(-1, -.5, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.2)),
+                new Cube(.2, vec3(-.75, -.5, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.1)),
+                new Cube(.2, vec3(-.45, -.5, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.0))
+        );
+
+        Group cubeLayer2 = new Group(
+                new Cube(.2, vec3(-1, -.25, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.25, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.25, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1, -.25, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.25, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.25, -1.75-.5), new DiffuseMaterial(rndColor()))
+
+        );
+
+        Group cubeLayer3 = new Group(
+                new Cube(.2, vec3(-1, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+
+                new Cube(.2, vec3(-1, -.75, -1.5+.7-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.75, -1.5+.7-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.75, -1.5+.7-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1, -.75, -1.75+.7-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75, -.75, -1.75+.7-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45, -.75, -1.75+.7-.5), new DiffuseMaterial(rndColor())),
+
+                new Cube(.2, vec3(-1+1, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75+1, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45+1, -.75, -1.5-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-1+1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.75+1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+                new Cube(.2, vec3(-.45+1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
+
+                new Cube(.2, vec3(-1+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.1)),
+                new Cube(.2, vec3(-.75+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.2)),
+                new Cube(.2, vec3(-.45+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.3)),
+                new Cube(.2, vec3(-1+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.0)),
+                new Cube(.2, vec3(-.75+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.1)),
+                new Cube(.2, vec3(-.45+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.2))
+        );
+
+
+
+        return new Group(cubeLayer1, cubeLayer2, cubeLayer3);
+
+    }
+
+    public static Vec3 rndColor(){
+        return new Vec3(Math.random(), Math.random(), Math.random());
+    }
+
+
 
 }
 

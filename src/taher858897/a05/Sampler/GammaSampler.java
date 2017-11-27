@@ -2,6 +2,8 @@ package taher858897.a05.Sampler;
 
 import cgtools.Vec3;
 
+import static java.lang.Math.pow;
+
 public class GammaSampler implements Sampler {
     final Sampler s;
     final double GAMMA;
@@ -11,10 +13,10 @@ public class GammaSampler implements Sampler {
         GAMMA = gamma;
     }
     public Vec3 gamma(Vec3 vec3) {
-        return new Vec3(
-                Math.pow(vec3.x, 1.0 / GAMMA),
-                Math.pow(vec3.y, 1.0 / GAMMA),
-                Math.pow(vec3.z, 1.0 / GAMMA));
+        vec3.x = pow(vec3.x, 1.0 / GAMMA);
+        vec3.y = pow(vec3.y, 1.0 / GAMMA);
+        vec3.z = pow(vec3.z, 1.0 / GAMMA);
+        return vec3;
     }
 
     @Override

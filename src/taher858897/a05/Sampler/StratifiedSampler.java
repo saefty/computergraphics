@@ -23,7 +23,7 @@ public class StratifiedSampler implements Sampler {
                 double ry = Math.random();
                 double xs = x + (xi + rx) / n;
                 double ys = y + (yi + ry) / n;
-                color = add(color, sampler.color(xs, ys));
+                color = addFast(color, sampler.color(xs, ys));
             }
         }
         return divide(color, this.amount);

@@ -1,17 +1,16 @@
 package taher858897.a05.Shape;
 
 import cgtools.Vec3;
-import taher858897.a05.Material.DiffuseMaterial;
 import taher858897.a05.Material.Material;
-import taher858897.a05.Material.ReflectionMaterial;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
-import static cgtools.Vec3.blue;
-import static cgtools.Vec3.green;
-import static cgtools.Vec3.red;
+import static cgtools.Vec3.dotProduct;
+import static cgtools.Vec3.multiply;
+import static cgtools.Vec3.multiplyFast;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.Math.signum;
 
 public class Cube implements Shape {
     final Vec3 position;
@@ -29,6 +28,7 @@ public class Cube implements Shape {
         this.position_max = max;
         this.material = m;
     }
+
     @Override
     public Hit intersect(Ray r) {
         double X_MIN = position.x;
@@ -56,12 +56,35 @@ public class Cube implements Shape {
         }
 
         Vec3 norm_vec = new Vec3(0);
-        if (tmin == t1) norm_vec = new Vec3(-1,0, 0);
-        else if (tmin == t2) norm_vec = new Vec3(1,0, 0);
-        else if (tmin == t3) norm_vec = new Vec3(0,-1, 0);
-        else if (tmin == t4) norm_vec = new Vec3(0,1, 0);
-        else if (tmin == t5) norm_vec = new Vec3(0,0, 1);
-        else if (tmin == t6) norm_vec = new Vec3(0,0, -1);
+        /*
+        tmax == t1: left
+        tmin == t2: right
+        tmax == t3: bottom
+        tmin == t4: top
+        tmax == t5: back
+        tmin == t6: front
+        */
+        //if (tmin == t4) norm_vec = new Vec3(0,-1, 0);// down?
+        if (tmin == t1) {
+            norm_vec = new Vec3(-1, 0, 0);
+        } else if (tmin == t2) {
+            norm_vec = new Vec3(1, 0, 0);
+        } else if (tmin == t3) {
+            norm_vec = new Vec3(0, -1, 0);
+        } else if (tmin == t4) {
+            norm_vec = new Vec3(0, 1, 0);
+        } else if (tmin == t5) {
+            norm_vec = new Vec3(0, 0, -1);
+        } else if (tmin == t6) {
+            norm_vec = new Vec3(0, 0, 1);
+        }
+
+        if (r.t0 > tmin || r.t1 < tmin) return null;
+
+        if (dotProduct(r.d, norm_vec) > 0){
+            norm_vec = multiplyFast(-1, norm_vec);
+        }
+
         return new Hit(tmin, norm_vec, r.pointAt(tmin), material);
     }
 }

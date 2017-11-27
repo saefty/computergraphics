@@ -1,6 +1,5 @@
 package taher858897.a05.Shape;
 
-import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
@@ -19,9 +18,8 @@ public class Plane implements Shape {
 
     @Override
     public Hit intersect(Ray r) {
-        Vec3 sub_R_origin = Vec3.multiply(-1 ,r.o);
         double up = Vec3.dotProduct(
-                Vec3.add(position, sub_R_origin),
+                Vec3.subtract(position, r.o),
                 norm_vec);
         double down = Vec3.dotProduct(norm_vec, r.d);
         if (down == 0) return null;
