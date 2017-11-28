@@ -25,7 +25,7 @@ public class Main {
     public static int width  = 160 * 12;
     public static int height = 90 * 12;
 
-    private static final int SAMPLING_RATE = 128;
+    private static final int SAMPLING_RATE = 256    ;
     private static final double GAMMA = 2.2;
 
 
@@ -43,8 +43,8 @@ public class Main {
 
         Group scene = new Group(
             bg,
-            //genRubics()
-            genSnowmanScene()
+            genRubics()
+            //genSnowmanScene()
         );
         Sampler tracer = raytrace(scene, stationaryCamera);
 
@@ -54,18 +54,18 @@ public class Main {
     }
 
     public static void renderImage(Image image, Sampler tracer){
-        SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*4)/8,8);
+        //SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*4)/8,8);
         try {
 
-            ImageMultithreadSocketWriter writer = new ImageMultithreadSocketWriter("saeftaher.de", 8770, image, tracer, (SAMPLING_RATE*4)/8);
+            ImageMultithreadSocketWriter writer = new ImageMultithreadSocketWriter("saeftaher.de", 8770, image, tracer, (SAMPLING_RATE*8)/8);
             Thread socketThread = new Thread(writer);
 
             socketThread.start();
-            sampleMultithread.startMultiThreading();
+            //sampleMultithread.startMultiThreading();
 
             socketThread.join();
-            sampleMultithread.join();
-            image = sampleMultithread.getImages();
+            //sampleMultithread.join();
+            //image = sampleMultithread.getImages();
             image = Image.mergeAVG(writer.RESULT_IMG, image);
         } catch ( Exception e) {
             e.printStackTrace();
@@ -75,7 +75,7 @@ public class Main {
             new GammaSampler(image, GAMMA)
         );
 
-        String filename = "doc/a05-diffuse-spheres.png";
+        String filename = "doc/b01.png";
         try {
             System.out.println("Start writing image: " + filename);
 
