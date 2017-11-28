@@ -36,7 +36,7 @@ public class Sphere implements Shape {
                 x,
                 position
                 );
-        return Vec3.divide(tmp, radius);
+        return Vec3.divideFast(tmp, radius);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class Sphere implements Shape {
         double t1 = -(b  + d_sqrt)/(2*a);
         double t2 = -(b - d_sqrt)/(2*a);
 
-        double result = -1;
+        double result;
         double t = Math.min(t1, t2);
         if (t <= 0) t = Math.max(t1, t2);
         result = t;
@@ -75,9 +75,7 @@ public class Sphere implements Shape {
         if (r.t0 > result || r.t1 < result) return null;
         Vec3 hitPoint = r.pointAt(result);
         Vec3 norm_vec = getNormVecAtPoint(hitPoint);
-        if (dotProduct(r.d, norm_vec) > 0){
-            norm_vec = multiplyFast(-1, norm_vec);
-        }
+
         return new Hit(
                 result,
                 norm_vec,

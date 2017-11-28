@@ -26,21 +26,12 @@ public class ReflectionMaterial implements Material{
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
         Vec3 reflectedDirection = normalize(reflectedDirection(r, h));
-        if(dotProduct(reflectedDirection, h.normVec) < 0) return null;
         return new Ray(h.position, reflectedDirection, EPSILON, Double.POSITIVE_INFINITY);
-    }
-
-    public Vec3 rndDirection(){
-        Vec3 rndD = new Vec3(Random.random(), Random.random(), Random.random());
-        while (rndD.x * rndD.x + rndD.y * rndD.y + rndD.z * rndD.z >= 1){
-            rndD = new Vec3(Random.random(), Random.random(), Random.random());
-        }
-        return rndD;
-    }
+}
 
     public Vec3 reflectedDirection(Ray r, Hit h){
         Vec3 refl = Vec3.multiply(-2 * dotProduct(h.normVec, r.d), h.normVec);
-        return Vec3.addFast(refl, r.d, Vec3.multiplyFast(rnd_factor, rndDirection()));
+        return Vec3.addFast(refl, r.d, Vec3.multiplyFast(rnd_factor, Vec3.randomDirection()));
     }
 
     @Override

@@ -97,6 +97,14 @@ public class Vec3 implements Serializable {
         return a;
     }
 
+    public static Vec3 randomDirection(){
+        Vec3 rndD = new Vec3(Random.random()*2-1, Random.random()*2-1, Random.random()*2-1);
+        while (rndD.x * rndD.x + rndD.y * rndD.y + rndD.z * rndD.z >= 1){
+            rndD = new Vec3(Random.random()*2-1, Random.random()*2-1, Random.random()*2-1);
+        }
+        return rndD;
+    }
+
     /** Calculates the dot product. */
     public static double dotProduct(Vec3 a, Vec3 b) {
         return a.x * b.x + a.y * b.y + a.z * b.z;

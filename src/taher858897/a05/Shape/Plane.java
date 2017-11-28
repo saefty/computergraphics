@@ -25,13 +25,10 @@ public class Plane implements Shape {
         if (down == 0) return null;
         double t = up/down;
         if (t <= r.t0 ) return  null;
-        Vec3 norm;
+        Vec3 norm = norm_vec;
         if (Vec3.dotProduct(norm_vec, r.d) > 0){
-            norm = norm_vec;
+            norm = Vec3.multiply(-1, norm_vec);
         }
-        else {
-            norm = Vec3.multiply(norm_vec);
-        }
-        return new Hit(t, norm_vec, r.pointAt(t), material);
+        return new Hit(t, norm, r.pointAt(t), material);
     }
 }

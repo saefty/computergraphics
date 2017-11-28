@@ -38,9 +38,9 @@ public class Cube implements Shape {
         double Z_MIN = position.z;
         double Z_MAX = position_max.z;
 
-        double x_frac = 1.0f / r.d.x,
-            y_frac = 1.0f / r.d.y,
-            z_frac = 1.0f / r.d.z;
+        double x_frac = 1.0 / r.d.x,
+               y_frac = 1.0 / r.d.y,
+               z_frac = 1.0 / r.d.z;
         double t1 = (X_MIN - r.o.x)*x_frac;
         double t2 = (X_MAX - r.o.x)*x_frac;
         double t3 = (Y_MIN - r.o.y)*y_frac;
@@ -48,10 +48,22 @@ public class Cube implements Shape {
         double t5 = (Z_MIN - r.o.z)*z_frac;
         double t6 = (Z_MAX - r.o.z)*z_frac;
 
-        double tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
-        double tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+        double tmin = max(
+                max(
+                    min(t1, t2),
+                    min(t3, t4)
+                ),
+                min(t5, t6)
+        );
+        double tmax = min(
+                min(
+                    max(t1, t2),
+                    max(t3, t4)
+                ),
+                max(t5, t6)
+        );
 
-        if (tmin > tmax || tmax < 0 ||tmin <= 0) {
+        if (tmin > tmax) {
             return null;
         }
 
@@ -74,16 +86,12 @@ public class Cube implements Shape {
         } else if (tmin == t4) {
             norm_vec = new Vec3(0, 1, 0);
         } else if (tmin == t5) {
-            norm_vec = new Vec3(0, 0, -1);
-        } else if (tmin == t6) {
             norm_vec = new Vec3(0, 0, 1);
+        } else if (tmin == t6) {
+            norm_vec = new Vec3(0, 0, -1);
         }
 
         if (r.t0 > tmin || r.t1 < tmin) return null;
-
-        if (dotProduct(r.d, norm_vec) > 0){
-            norm_vec = multiplyFast(-1, norm_vec);
-        }
 
         return new Hit(tmin, norm_vec, r.pointAt(tmin), material);
     }

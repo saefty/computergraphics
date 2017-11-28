@@ -5,6 +5,7 @@ import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import static cgtools.Vec3.normalizeFast;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class DiffuseMaterial implements Material{
@@ -21,18 +22,11 @@ public class DiffuseMaterial implements Material{
 
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
-        Vec3 rndD = rndDirection();
+        Vec3 rndD = Vec3.randomDirection();
         rndD = Vec3.add(h.normVec, rndD);
-        return new Ray(h.position, Vec3.normalizeFast(rndD), EPSILON, Double.POSITIVE_INFINITY);
+        return new Ray(h.position, normalizeFast(rndD), EPSILON, Double.POSITIVE_INFINITY);
     }
 
-    public Vec3 rndDirection(){
-        Vec3 rndD = new Vec3(Random.random(), Random.random(), Random.random());
-        while (rndD.x * rndD.x + rndD.y * rndD.y + rndD.z * rndD.z > 1){
-            rndD = new Vec3(Random.random(), Random.random(), Random.random());
-        }
-        return rndD;
-    }
 
     @Override
     public Vec3 albedo(Ray r, Hit h) {

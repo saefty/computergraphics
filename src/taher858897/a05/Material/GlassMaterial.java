@@ -11,7 +11,7 @@ import static java.lang.Math.sqrt;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class GlassMaterial extends ReflectionMaterial implements Material{
-    private double WORLD_REFRACTION_INDEX = 1.000272;
+    private static double  WORLD_REFRACTION_INDEX = 1.000272;
     private Vec3 color;
     private double refractionIndex;
 
@@ -31,7 +31,7 @@ public class GlassMaterial extends ReflectionMaterial implements Material{
         double n1 = WORLD_REFRACTION_INDEX;
         double n2 = refractionIndex;
         if (Vec3.dotProduct(r.d, h.normVec) > 0 ){
-            h = new Hit(h.t, Vec3.multiply(-1, h.normVec), h.position, h.material);
+            h = new Hit(h.t, multiply(-1, h.normVec), h.position, h.material);
             double tmp = n1;
             n1 = n2;
             n2 = tmp;

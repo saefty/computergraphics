@@ -3,6 +3,7 @@ package taher858897.a05;
 import cgtools.Vec3;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
+import taher858897.a05.Camera.PanoramaCamera;
 import taher858897.a05.Camera.StationaryCamera;
 import taher858897.a05.Material.BackgroundMaterial;
 import taher858897.a05.Material.DiffuseMaterial;
@@ -24,7 +25,7 @@ public class Main {
     public static int width  = 160 * 12;
     public static int height = 90 * 12;
 
-    private static final int SAMPLING_RATE = 256;
+    private static final int SAMPLING_RATE = 128;
     private static final double GAMMA = 2.2;
 
 
@@ -36,48 +37,45 @@ public class Main {
     public static void main(String[] args) {
         long start_time = System.currentTimeMillis();
         Image image = new Image(width, height);
-        //Mat4 cameraTransformation = Mat4.translate(-2,5,10);
-        //cameraTransformation = cameraTransformation.multiply(Mat4.rotate(vec3(0,1,0),-50));
 
-        StationaryCamera stationaryCamera = new StationaryCamera(Math.PI/2, width, height);
+        Camera stationaryCamera = new StationaryCamera(Math.PI/2, width, height);
         Background bg = new Background(new BackgroundMaterial( new Vec3(.75)));
 
         Group scene = new Group(
             bg,
-            genRubics()
-            //genSnowmanScene()
+            //genRubics()
+            genSnowmanScene()
         );
         Sampler tracer = raytrace(scene, stationaryCamera);
-        //image.sample(new StratifiedSampler(tracer, SAMPLING_RATE));
-        //ImageMultithread imageMultithread = new ImageMultithread(8, image, new GammaSampler(new StratifiedSampler(tracer, SAMPLING_RATE), GAMMA), 0, width,0, height);
-        SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*4)/8,4);
+
+        renderImage(image, tracer);
+
+        System.out.println((start_time-System.currentTimeMillis())/1000.0 + "s");
+    }
+
+    public static void renderImage(Image image, Sampler tracer){
+        SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*4)/8,8);
         try {
 
             ImageMultithreadSocketWriter writer = new ImageMultithreadSocketWriter("saeftaher.de", 8770, image, tracer, (SAMPLING_RATE*4)/8);
             Thread socketThread = new Thread(writer);
 
             socketThread.start();
-            //imageMultithread.startMultiThreading();
             sampleMultithread.startMultiThreading();
 
-            //imageMultithread.join();
             socketThread.join();
             sampleMultithread.join();
             image = sampleMultithread.getImages();
             image = Image.mergeAVG(writer.RESULT_IMG, image);
-
-            //image.mergeAVG(writer.RESULT_IMG,0, width/2,0, height);
-            //writer.RESULT_IMG.write("doc/test.png");
-
         } catch ( Exception e) {
             e.printStackTrace();
         }
 
-        image.sample(new GammaSampler(image, GAMMA));
+        image.sample(
+            new GammaSampler(image, GAMMA)
+        );
 
-
-
-        String filename = "doc/b01.png";
+        String filename = "doc/a05-diffuse-spheres.png";
         try {
             System.out.println("Start writing image: " + filename);
 
@@ -86,7 +84,6 @@ public class Main {
         } catch (IOException error) {
             System.out.println(String.format("Something went wrong writing: %s: %s", filename, error));
         }
-        System.out.println((start_time-System.currentTimeMillis())/1000.0 + "s");
     }
 
     public static Vec3 middle(Vec3 a, Vec3 b){
@@ -173,48 +170,44 @@ public class Main {
     public static Group genSnowmanScene(){
         Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(vec3(.5)));
 
-        Shape globe1 = new Sphere(vec3(-2.5, 0, -1.5), 0.5,new GlassMaterial(vec3(1), 1.5,1));
-        Shape globe2 = new Sphere(vec3(-2.0, 0, -3), 0.8,  new GlassMaterial(vec3(.8), 1.5,.0));
+        Shape globe1 = new Sphere(vec3(-2.5, -.2, -1.5), 0.5, new DiffuseMaterial(vec3(.8)));
+        Shape globe1_2 = new Sphere(vec3(-2.5, -.5, -1.5), 0.3,new DiffuseMaterial(vec3(.4)));
+        Shape globe2 = new Sphere(vec3(-2.0, -.2, -3), 0.8,  new DiffuseMaterial(vec3(.8)));
         Shape globe3 = new Sphere(vec3(-2.5, 0, -6.5), 0.8, new DiffuseMaterial(red));
 
-        Shape globe4 = new Sphere(vec3(1.5, 0, -1.5), 0.4, new GlassMaterial(green, 3,0));
+        Shape globe4 = new Sphere(vec3(1.5, -.5, -1.5), 0.4, new DiffuseMaterial(green));
         Shape globe5 = new Sphere(vec3(2.0, 0, -3), 0.8, new DiffuseMaterial(red));
         Shape globe6 = new Sphere(vec3(2.5, 0, -6.5), 0.8, new DiffuseMaterial(green));
 
         Shape le_eye = new Sphere(vec3(-0.065, 0.55 -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
         Shape re_eye = new Sphere(vec3(0.065, 0.55  -  .2, -2.34+.5), .043 ,new DiffuseMaterial(black));
-        Shape globe9 = new Sphere(vec3(0.0, 0.5     -  .2, -2.5+.5), .21, new GlassMaterial(vec3(.6), 1.5,.0));
-        Shape globe8 = new Sphere(vec3(0.0, .1      -  .2, -2.5+.5), .33, new GlassMaterial(vec3(.8), 1.5,.0));
-        Shape globe10 = new Sphere(vec3(0.0, -.5    -  .2, -2.5+.5), .4 , new GlassMaterial(vec3(.8), 1.5,.0));
+        Shape globe9 = new Sphere(vec3(0.0, 0.5     -  .2, -2.5+.5), .21, new DiffuseMaterial(vec3(.6)));
+        Shape globe8 = new Sphere(vec3(0.0, .1      -  .2, -2.5+.5), .33, new DiffuseMaterial(vec3(.8)));
+        Shape globe10 = new Sphere(vec3(0.0, -.5    -  .2, -2.5+.5), .4 , new DiffuseMaterial(vec3(.8)));
         Group snowMan = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
         le_eye = new Sphere(vec3(-0.065 -.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
         re_eye = new Sphere(vec3(0.065-.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
-        globe9 = new Sphere(vec3(0.0-.6, 0.5     -  .2, -2.5), .21 ,new GlassMaterial(vec3(.8), 1.5,.0));
-        globe8 = new Sphere(vec3(0.0-.6, .1      -  .2, -2.5), .33, new GlassMaterial(vec3(.8), 1.5,.0));
-        globe10 = new Sphere(vec3(0.0-.6, -.5    -  .2, -2.5), .4 , new GlassMaterial(vec3(.8), 1.5,.0));
+        globe9 = new Sphere(vec3(0.0-.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
+        globe8 = new Sphere(vec3(0.0-.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
+        globe10 = new Sphere(vec3(0.0-.6, -.5    -  .2, -2.5), .4 , new DiffuseMaterial(vec3(.8)));
         Group snowMan1 = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
         le_eye = new Sphere(vec3(-0.065 +.6, 0.55 -  .2, -2.34), .043 ,new DiffuseMaterial(black));
         re_eye = new Sphere(vec3(0.065+.6, 0.55  -  .2, -2.34), .043 ,new DiffuseMaterial(black));
-        globe9 = new Sphere(vec3(0.0+.6, 0.5     -  .2, -2.5), .21 ,new GlassMaterial(vec3(1), 1.5,1));
-        globe8 = new Sphere(vec3(0.0+.6, .1      -  .2, -2.5), .33, new GlassMaterial(vec3(1), 1.5,1));
-        globe10 = new Sphere(vec3(0.0+.6, -.5    -  .2, -2.5), .4 ,new GlassMaterial(vec3(1), 1.5,1));
+        globe9 = new Sphere(vec3(0.0+.6, 0.5     -  .2, -2.5), .21 ,new DiffuseMaterial(vec3(.8)));
+        globe8 = new Sphere(vec3(0.0+.6, .1      -  .2, -2.5), .33, new DiffuseMaterial(vec3(.8)));
+        globe10 = new Sphere(vec3(0.0+.6, -.5    -  .2, -2.5), .4 ,new DiffuseMaterial(vec3(.8)));
         Group snowMan2 = new Group(re_eye,le_eye, globe8,globe9,globe10);
 
 
-        Group cubes = new Group(
-                new Cube(5, new Vec3(0,-1,-1.5), new ReflectionMaterial(vec3(.8),.3)),
-                new Cube(.5, new Vec3(.5,-1,-1.5), new ReflectionMaterial(vec3(.7),.2)),
-                new Cube(.5, new Vec3(.25,-0.5,-1.5), new ReflectionMaterial(vec3(.6),.1))
-                );
-        Group scene = new Group(ground, globe1, globe5 , globe2, globe3, globe4, globe6,
+        Group scene = new Group(ground, globe1, globe1_2, globe5 , globe2, globe3, globe4, globe6,
                 snowMan1, snowMan2, snowMan,
                 new Cube(vec3(-.1, -.7, -1.4), vec3(.1, -.5    +  .0, -2.1), new DiffuseMaterial(vec3(0,.5,1))),
                 new Cube(vec3(-.1, -.7+.5, -1.4), vec3(.1, -.5    +  .5, -2.1), new DiffuseMaterial(vec3(0,.5,1))),
                 new Cube(vec3(-1.9, -1, -2.9), vec3(-2.1, 1, -3.1), new DiffuseMaterial(blue)),
-                new Cube(vec3(-.3, -1, -1.2), vec3(.3, -.5, -1.3),  new GlassMaterial(vec3(.8),1.8,.0))
-
+                new Cube(vec3(-.3, -1, -1.2), vec3(.3, -.5, -1.3),  new DiffuseMaterial(vec3(.8))),
+                new Cube(vec3(-.3, -1, -0.8), vec3(.3, -.7, -0.9),  new DiffuseMaterial(vec3(.8)))
         );
 
         return scene;
@@ -278,15 +271,13 @@ public class Main {
                 new Cube(.2, vec3(-.75+1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
                 new Cube(.2, vec3(-.45+1, -.75, -1.75-.5), new DiffuseMaterial(rndColor())),
 
-                new Cube(.2, vec3(-1+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.1)),
-                new Cube(.2, vec3(-.75+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.2)),
-                new Cube(.2, vec3(-.45+1, -.75, -1.5+.7-.5), new ReflectionMaterial(rndColor(),.3)),
-                new Cube(.2, vec3(-1+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.0)),
-                new Cube(.2, vec3(-.75+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.1)),
-                new Cube(.2, vec3(-.45+1, -.75, -1.75+.7-.5), new ReflectionMaterial(rndColor(),.2))
+                new Cube(.2, vec3(-1+1, -.75, 1.5+.7-.5), new ReflectionMaterial(rndColor(),.1)),
+                new Cube(.2, vec3(-.75+1, -.75, 1.5+.7-.5), new ReflectionMaterial(rndColor(),.2)),
+                new Cube(.2, vec3(-.45+1, -.75, 1.5+.7-.5), new ReflectionMaterial(rndColor(),.3)),
+                new Cube(.2, vec3(-1+1, -.75, 1.75+.7-.5), new ReflectionMaterial(rndColor(),.0)),
+                new Cube(.2, vec3(-.75+1, -.75, 1.75+.7-.5), new ReflectionMaterial(rndColor(),.1)),
+                new Cube(.2, vec3(-.45+1, -.75, 1.75+.7-.5), new ReflectionMaterial(rndColor(),.2))
         );
-
-
 
         return new Group(cubeLayer1, cubeLayer2, cubeLayer3);
 
