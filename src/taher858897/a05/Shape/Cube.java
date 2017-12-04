@@ -86,9 +86,9 @@ public class Cube implements Shape {
         } else if (tmin == t4) {
             norm_vec = new Vec3(0, 1, 0);
         } else if (tmin == t5) {
-            norm_vec = new Vec3(0, 0, 1);
-        } else if (tmin == t6) {
             norm_vec = new Vec3(0, 0, -1);
+        } else if (tmin == t6) {
+            norm_vec = new Vec3(0, 0, 1);
         }
 
         if (r.t0 > tmin || r.t1 < tmin) return null;
