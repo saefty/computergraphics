@@ -33,6 +33,7 @@ public class ImageTexture {
         }
     }
 
+
     public Vec3 samplePoint(double u, double v) {
         int x = (int) ((u - Math.floor(u)) * width);
         int y = (int) ((v - Math.floor(v)) * height);

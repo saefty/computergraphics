@@ -1,5 +1,6 @@
 package taher858897.a05;
 
+import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
@@ -17,12 +18,16 @@ import java.io.IOException;
 import java.security.SecureRandom;
 
 import static cgtools.Vec3.*;
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 public class Main {
-    public static int width  = 160 * 12;
-    public static int height = 90 * 12;
+    public static int width  = 160 * 12*2;
+    public static int height = 90 * 6*2;
 
-    private static final int SAMPLING_RATE = 256;
+
+    private static final int SAMPLING_RATE = 128;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -36,13 +41,21 @@ public class Main {
     public static void main(String[] args) {
         long start_time = System.currentTimeMillis();
         Image image = new Image(width, height);
+        Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,1.5,1)));
+        transformation = Mat4.translate(vec3(-2,0,1.5)); // 1
+        transformation = Mat4.translate(vec3(-2,3.5,0)).multiply(Mat4.rotate(vec3(1,0,0),-70)); //2
+        transformation = Mat4.identity;
+        Camera stationaryCamera = new PanoramaCamera(PI/2, width, height, transformation);
+        Background bg = new Background(new BackgroundMaterial( new Vec3(.7)));
 
-        Camera stationaryCamera = new StationaryCamera(Math.PI/2, width, height);
-        Background bg = new Background(new BackgroundMaterial( new Vec3(.8)));
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
 
         Group scene = new Group(
             bg,
-            genSphereFractalScene(new Vec3(-1.4, .5,-2.5), .6)
+            ground,
+            genSphereFractalScene(new Vec3(-1.4, .5,2.5), .6),
+
+            //genSnowmanScene()
             /*genSirpinskiScene(),
             new Cube(vec3(-.5, -1, -.38), vec3(.5, -.25, -1), new ReflectionMaterial(vec3(.8,.8,.0),.15)),
             new Cube(vec3(-.5, -.24, -.38), vec3(-.49, .05, -1), new ReflectionMaterial(vec3(.9),0)),
@@ -55,6 +68,7 @@ public class Main {
 
             new Sphere(vec3(-2.5+5, -.2, -1.5-.5), 0.6, new GlassMaterial(vec3(.8),1.5,0)),
             new Cube(vec3(-2.4+5, -1, -1.4-.5), vec3(-2.6+5, .8, -1.5-.5), new DiffuseMaterial(vec3(.70,.14,.14)))*/
+            new Group()
         );
         Sampler tracer = raytrace(scene, stationaryCamera);
 
@@ -90,7 +104,7 @@ public class Main {
             new GammaSampler(image, GAMMA)
         );
 
-        String filename = "docs/a06-mirrors-glass-4.png";
+        String filename = "doc/a08-1.png";
         try {
             System.out.println("Start writing image: " + filename);
 
@@ -296,13 +310,51 @@ public class Main {
 
 
     public static Group genSphereFractalScene(Vec3 pos, double size){
-        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new ReflectionMaterial(new Vec3(0.7),.1));
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
         Group g = new Group(
             ground,
-            new Sphere(pos, size, new GlassMaterial(vec3(.8), 1.1,0)),
-            genSphereFractal(pos, size, 5)
+            new Cone(vec3(-3,-1,-3.5),2.5,10, new ReflectionMaterial(vec3(.5),0)),
+            new Cone(vec3(2,-1,-3.5),2.5,10, new ReflectionMaterial(vec3(.8,.8,.1),0)),
+            new Sphere(pos, size, new GlassMaterial(vec3(.8),1.1,0)),
+            genCylinderCircle(vec3(pos.x,-1, pos.z),2.5,.12,.06, .8, 15),
+            genCylinderCircle2(vec3(pos.x,-.8, pos.z),2.8,.2, .06, 20),
+            genConeCircle(vec3(pos.x,-1, pos.z),2,.5,20, 40, 15),
+            genSphereFractal(pos, size, 4)
         );
         return g;
+    }
+
+    public static Group genCylinderCircle(Vec3 pos, double radius, double radiusCylinder, double startHeight, double endHeight, double count){
+        Group res = new Group();
+        for(int i = 0; i < count; i++){
+            Vec3 cur_pos = new Vec3(radius*sin(2*PI*i/count)+ pos.x, pos.y, radius*cos(2*PI*i/count) + pos.z);
+            res.addShape(
+                new Cylinder(cur_pos,radiusCylinder, startHeight*i/count+endHeight*(1-i/count), new ReflectionMaterial(rndColor(),0))
+            );
+        }
+        return res;
+    }
+
+    public static Group genCylinderCircle2(Vec3 pos, double radius, double startHeight, double endHeight, double count){
+        Group res = new Group();
+        for(int i = 0; i < count; i++){
+            Vec3 cur_pos = new Vec3(radius*sin(2*PI*i/count)+ pos.x, pos.y+ i/10.0, radius*cos(2*PI*i/count) + pos.z);
+            res.addShape(
+                new Sphere(cur_pos, startHeight*i/count+endHeight*(1-i/count), new ReflectionMaterial(rndColor(),.2))
+            );
+        }
+        return res;
+    }
+
+    public static Group genConeCircle(Vec3 pos, double radius, double height, double startDeg, double endDeg, double count){
+        Group res = new Group();
+        for(int i = 0; i < count; i++){
+            Vec3 cur_pos = new Vec3(radius*sin(2*PI*i/count)+ pos.x, pos.y, radius*cos(2*PI*i/count) + pos.z);
+            res.addShape(
+                    new Cone(cur_pos, height, startDeg*i/count+endDeg*(1-i/count), new DiffuseMaterial(rndColor()))
+            );
+        }
+        return res;
     }
 
     public static Group genSphereFractal(Vec3 oldPos, double oldSize, double depth){

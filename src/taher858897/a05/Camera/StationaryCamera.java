@@ -38,7 +38,7 @@ public class StationaryCamera implements Camera {
     public Ray generateRay(double x, double y){
         Vec3 o = new Vec3(0);
         Vec3 d = Vec3.normalize(new Vec3(x-pre_x, pre_y-y, this.pre_z));
-        if (tranformation != null){
+        if (tranformation != null) {
             o = tranformation.transformPoint(o);
             d = tranformation.transformDirection(d);
         }
