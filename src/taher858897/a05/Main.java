@@ -23,11 +23,11 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 public class Main {
-    public static int width  = 160 * 12*2;
-    public static int height = 90 * 6*2;
+    public static int width  = 160 * 12;
+    public static int height = 90 * 12;
 
 
-    private static final int SAMPLING_RATE = 128;
+    private static final int SAMPLING_RATE = 256;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -45,7 +45,7 @@ public class Main {
         transformation = Mat4.translate(vec3(-2,0,1.5)); // 1
         transformation = Mat4.translate(vec3(-2,3.5,0)).multiply(Mat4.rotate(vec3(1,0,0),-70)); //2
         transformation = Mat4.identity;
-        Camera stationaryCamera = new PanoramaCamera(PI/2, width, height, transformation);
+        Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
         Background bg = new Background(new BackgroundMaterial( new Vec3(.7)));
 
         Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
@@ -104,7 +104,7 @@ public class Main {
             new GammaSampler(image, GAMMA)
         );
 
-        String filename = "doc/a08-1.png";
+        String filename = "docs/a08-2.png";
         try {
             System.out.println("Start writing image: " + filename);
 
