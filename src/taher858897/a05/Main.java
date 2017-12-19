@@ -2,32 +2,38 @@ package taher858897.a05;
 
 import cgtools.Mat4;
 import cgtools.Vec3;
+import taher858897.FootballScene;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
-import taher858897.a05.Camera.PanoramaCamera;
 import taher858897.a05.Camera.StationaryCamera;
 import taher858897.a05.Material.*;
 import taher858897.a05.Sampler.Sampler;
-import taher858897.a05.Sampler.StratifiedSampler;
 import taher858897.a05.Shape.*;
 import taher858897.a05.RayTracer.RayTracer;
 import taher858897.a05.Sampler.GammaSampler;
 import taher858897.a05.Shape.Shape;
+import taher858897.a05.Threading.Executors.RayTraceExcecutor;
+import taher858897.a05.Threading.Executors.RayTraceFragmentExcecutor;
+import taher858897.a05.Threading.ImageMultithreadSocketWriter;
+import taher858897.a05.Threading.SampleMultithread;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 
+import static cgtools.Mat4.scale;
 import static cgtools.Vec3.*;
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 public class Main {
-    public static int width  = 160 * 12;
-    public static int height = 90 * 12;
+    public static String  filename = "docs/a08-2.png";
+    public static int width  = 160 * 9;
+    public static int height = 90 * 9;
+    public static int threads = 16;
+    public static int xDim = 16;
+    public static int yDim = 9;
 
 
-    private static final int SAMPLING_RATE = 256;
+    private static final int SAMPLING_RATE = 128;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -42,9 +48,9 @@ public class Main {
         long start_time = System.currentTimeMillis();
         Image image = new Image(width, height);
         Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,1.5,1)));
-        transformation = Mat4.translate(vec3(-2,0,1.5)); // 1
-        transformation = Mat4.translate(vec3(-2,3.5,0)).multiply(Mat4.rotate(vec3(1,0,0),-70)); //2
-        transformation = Mat4.identity;
+        transformation = Mat4.translate(vec3(1,1,2.5)).multiply(Mat4.rotate(-1,0,0,45)); // 1
+        //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
+        //transformation = Mat4.identity;
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
         Background bg = new Background(new BackgroundMaterial( new Vec3(.7)));
 
@@ -53,8 +59,9 @@ public class Main {
         Group scene = new Group(
             bg,
             ground,
-            genSphereFractalScene(new Vec3(-1.4, .5,2.5), .6),
-
+            FootballScene.genScene(),
+            //genSphereFractalScene(new Vec3(-1.4, .5,0), .6),
+            //new Group(getImprovedSphereFlakeScene(vec3(0,1,0), .8, .5, 4)),
             //genSnowmanScene()
             /*genSirpinskiScene(),
             new Cube(vec3(-.5, -1, -.38), vec3(.5, -.25, -1), new ReflectionMaterial(vec3(.8,.8,.0),.15)),
@@ -78,9 +85,13 @@ public class Main {
     }
 
     public static void renderImage(Image image, Sampler tracer){
-        SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*8)/8,8);
+       // SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*8)/8,4);
+        RayTraceFragmentExcecutor rayTraceFragmentExcecutor = new RayTraceFragmentExcecutor(threads);
+        image = rayTraceFragmentExcecutor.executeTracer(image, (RayTracer) tracer, SAMPLING_RATE, xDim, yDim);
+        //RayTraceExcecutor rayTraceExcecutor = new RayTraceExcecutor(4);
+        //image = rayTraceExcecutor.executeTracer(image, (RayTracer) tracer, SAMPLING_RATE, 4,4);
         try {
-            ImageMultithreadSocketWriter writer = null;
+            /*ImageMultithreadSocketWriter writer = null;
             Thread socketThread = null;
 
             if (WITH_SOCKET){
@@ -95,7 +106,7 @@ public class Main {
             if (WITH_SOCKET) socketThread.join();
             sampleMultithread.join();
             image = sampleMultithread.getImages();
-            if (WITH_SOCKET) image = Image.mergeAVG(writer.RESULT_IMG, image);
+            if (WITH_SOCKET) image = Image.mergeAVG(writer.RESULT_IMG, image);*/
         } catch ( Exception e) {
             e.printStackTrace();
         }
@@ -104,7 +115,6 @@ public class Main {
             new GammaSampler(image, GAMMA)
         );
 
-        String filename = "docs/a08-2.png";
         try {
             System.out.println("Start writing image: " + filename);
 
@@ -113,6 +123,76 @@ public class Main {
         } catch (IOException error) {
             System.out.println(String.format("Something went wrong writing: %s: %s", filename, error));
         }
+    }
+    public static Group getImprovedSphereFlakeScene(Vec3 pos, double size, double scale, double depth){
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
+        Vec3 p0 = new Vec3((size+size*scale), 0, 0),
+                p1 = new Vec3(-(size+size*scale), 0, 0),
+                p2 = new Vec3(0,  (size+size*scale), 0),
+                p3 = new Vec3(0,  -(size+size*scale), 0),
+                p4 = new Vec3(0, 0, (size+size*scale)),
+                p5 = new Vec3(0, 0,  -(size+size*scale));
+        Material m = new GlassMaterial(vec3(.8),1.2,0);
+        Group initialGroup = new Group(
+            new Sphere(vec3(0), size, m),
+            new Sphere(p0, size*scale, new GlassMaterial(rndColor(),1.2,0)),
+            new Sphere(p1, size*scale, new GlassMaterial(rndColor(),1.2,0)),
+            new Sphere(p2, size*scale, new GlassMaterial(rndColor(),1.2,0)),
+            new Sphere(p3, size*scale, new GlassMaterial(rndColor(),1.2,0)),
+            new Sphere(p4, size*scale, new GlassMaterial(rndColor(),1.2,0)),
+            new Sphere(p5, size*scale, new GlassMaterial(rndColor(),1.2,0))
+        );
+
+        Group g = new Group(
+            new Sphere(vec3(0), size, m),
+            sphereFlakeImproved(initialGroup, size, scale,depth)
+        );
+        g.setTransformation(Mat4.translate(pos));
+        return g;
+    }
+
+    public static Group sphereFlakeImproved(Group spheres, double oldSize, double scale, double depth){
+        if (depth == 0) return new Group();
+        Vec3 p0 = new Vec3((oldSize+oldSize*scale), 0, 0),
+             p1 = new Vec3(-(oldSize+oldSize*scale), 0, 0),
+             p2 = new Vec3(0,  (oldSize+oldSize*scale), 0),
+             p3 = new Vec3(0,  -(oldSize+oldSize*scale), 0),
+             p4 = new Vec3(0, 0, (oldSize+oldSize*scale)),
+             p5 = new Vec3(0, 0,  -(oldSize+oldSize*scale));
+        Mat4 s = scale(vec3(scale));
+        Group g0 = new Group(
+                new Group(spheres),
+                new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+        Group g1 = new Group(
+            new Group(spheres),
+            new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+        Group g2 = new Group(
+                new Group(spheres),
+                new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+        Group g3 = new Group(
+                new Group(spheres),
+                new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+        Group g4 = new Group(
+                new Group(spheres),
+                new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+        Group g5 = new Group(
+                new Group(spheres),
+                new Group(sphereFlakeImproved(spheres, oldSize, scale, depth -1))
+        );
+
+        g0.setTransformation(Mat4.translate(p0).multiply(s));
+        g1.setTransformation(Mat4.translate(p1).multiply(s));
+        g2.setTransformation(Mat4.translate(p2).multiply(s));
+        g3.setTransformation(Mat4.translate(p3).multiply(s));
+        g4.setTransformation(Mat4.translate(p4).multiply(s));
+        g5.setTransformation(Mat4.translate(p5).multiply(s));
+        Group res = new Group(g1, g2,g3,g4,g5,g0);
+        return res;
     }
 
     public static Vec3 middle(Vec3 a, Vec3 b){
@@ -311,15 +391,16 @@ public class Main {
 
     public static Group genSphereFractalScene(Vec3 pos, double size){
         Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
+
         Group g = new Group(
             ground,
-            new Cone(vec3(-3,-1,-3.5),2.5,10, new ReflectionMaterial(vec3(.5),0)),
+            /*new Cone(vec3(-3,-1,-3.5),2.5,10, new ReflectionMaterial(vec3(.5),0)),
             new Cone(vec3(2,-1,-3.5),2.5,10, new ReflectionMaterial(vec3(.8,.8,.1),0)),
             new Sphere(pos, size, new GlassMaterial(vec3(.8),1.1,0)),
             genCylinderCircle(vec3(pos.x,-1, pos.z),2.5,.12,.06, .8, 15),
             genCylinderCircle2(vec3(pos.x,-.8, pos.z),2.8,.2, .06, 20),
-            genConeCircle(vec3(pos.x,-1, pos.z),2,.5,20, 40, 15),
-            genSphereFractal(pos, size, 4)
+            genConeCircle(vec3(pos.x,-1, pos.z),2,.5,20, 40, 15)*/
+            genSphereFractal(pos, size, 3)
         );
         return g;
     }
@@ -360,21 +441,21 @@ public class Main {
     public static Group genSphereFractal(Vec3 oldPos, double oldSize, double depth){
         if (depth == 0) return new Group();
         double size = oldSize/2.2;
-        Vec3 p0 = new Vec3(oldPos.x - oldSize - size, oldPos.y, oldPos.z),
-             p1 = new Vec3(oldPos.x + oldSize + size, oldPos.y, oldPos.z),
-             p2 = new Vec3(oldPos.x, oldPos.y - oldSize - size, oldPos.z),
-             p3 = new Vec3(oldPos.x, oldPos.y + oldSize + size, oldPos.z),
-             p4 = new Vec3(oldPos.x, oldPos.y, oldPos.z - oldSize - size),
-             p5 = new Vec3(oldPos.x, oldPos.y, oldPos.z + oldSize + size);
+        Vec3 p0 = new Vec3(- oldSize - size, 0, 0),
+             p1 = new Vec3( oldSize + size, 0, 0),
+             p2 = new Vec3(0,  - oldSize - size, 0),
+             p3 = new Vec3(0,  oldSize + size, 0),
+             p4 = new Vec3(0, 0, - oldSize - size),
+             p5 = new Vec3(0, 0, oldSize + size);
 
         Material m = new GlassMaterial(rndColor(),1.2,0);
         Group g = new Group(
-            new Sphere(p0,size, m),
-            new Sphere(p1,size, m),
-            new Sphere(p2,size, m),
-            new Sphere(p3,size, m),
-            new Sphere(p4,size, m),
-            new Sphere(p5,size, m),
+            new Sphere(p0, size, m),
+            new Sphere(p1, size, m),
+            new Sphere(p2, size, m),
+            new Sphere(p3, size, m),
+            new Sphere(p4, size, m),
+            new Sphere(p5, size, m),
             genSphereFractal(p0, size, depth - 1),
             genSphereFractal(p1, size, depth - 1),
             genSphereFractal(p2, size, depth - 1),
@@ -382,6 +463,7 @@ public class Main {
             genSphereFractal(p4, size, depth - 1),
             genSphereFractal(p5, size, depth - 1)
         );
+        g.setTransformation(Mat4.translate(oldPos));
         return g;
     }
 

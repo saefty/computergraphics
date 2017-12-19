@@ -19,6 +19,9 @@ public class Cone implements Shape {
     final Material material;
     final Disk topDisk;
 
+    final Vec3 minPos;
+    final Vec3 maxPos;
+
     public Cone(Vec3 position, double height, double deg, Material material) {
         this.position = position;
         this.height = height;
@@ -27,6 +30,9 @@ public class Cone implements Shape {
         this.radius = tan(this.radians) * height;
         this.material = material;
         this.topDisk = new Disk(vec3(position.x,position.y + height, position.z), vec3(0,1,0), material, radius*height);
+
+        minPos = new Vec3(position.x-radius*height, position.y, position.z-radius*height);
+        maxPos = new Vec3(position.x+radius*height, position.y+height, position.z+radius*height);
     }
 
 
@@ -41,6 +47,16 @@ public class Cone implements Shape {
         return intersect(r, true);
     }
 
+    @Override
+    public Vec3 getMinPos() {
+        return minPos;
+    }
+
+    @Override
+    public Vec3 getMaxPos() {
+        return maxPos;
+    }
+
     public Hit intersect(Ray r, boolean withNormVec) {
         Vec3 x0 = new Vec3(r.o.x - position.x, (r.o.y - position.y),r.o.z - position.z);
         Vec3 d = r.d;
@@ -48,7 +64,7 @@ public class Cone implements Shape {
         double a = d.x * d.x + d.z * d.z - (d.y*d.y)*radius*radius;
         double b = 2*x0.x*d.x + 2*x0.z*d.z - (2*x0.y*d.y)*radius*radius;
         double c = x0.x*x0.x + x0.z*x0.z - (x0.y*x0.y)*radius*radius;
-        /*Vec3 tmpX0 = new Vec3(r.o.x - position.x, radius*(r.o.y - position.y - height),r.o.z - position.z);
+        /*Vec3 tmpX0 = new Vec3(r.o.x - position.x, radius*(r.o.y - position.y - radiusTorus),r.o.z - position.z);
         Vec3 tmpX0_mod = new Vec3(r.o.x - position.x, -radius*(r.o.y - position.y),r.o.z - position.z);
         Vec3 direction = new Vec3(r.d.x, -radius*r.d.y, r.d.z);
         Vec3 direction_mod = new Vec3(r.d.x, radius*r.d.y, r.d.z);

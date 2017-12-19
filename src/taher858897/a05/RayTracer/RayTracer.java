@@ -18,7 +18,7 @@ public class RayTracer implements Sampler {
     @Override
     public Vec3 color(double x, double y) {
         Ray r = camera.generateRay(x, y);
-        return radiance(r,8);
+        return radiance(r,6);
     }
 
 

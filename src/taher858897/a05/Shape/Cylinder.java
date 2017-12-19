@@ -15,6 +15,9 @@ public class Cylinder implements Shape {
     final Disk topDisk;
     final Disk bottomDisk;
 
+    final Vec3 minPos;
+    final Vec3 maxPos;
+
     public Cylinder(Vec3 position, double radius, double height, Material material) {
         this.position = position;
         this.radius = radius;
@@ -22,6 +25,10 @@ public class Cylinder implements Shape {
         this.material = material;
         this.topDisk = new Disk(vec3(position.x,position.y+height, position.z), vec3(0,1,0), material, radius);
         this.bottomDisk = new Disk(vec3(position.x,position.y, position.z), vec3(0,-1,0), material, radius);
+
+        minPos = new Vec3(position.x-radius*1.5, position.y-EPSILON*1.5, position.z-radius*1.5);
+        maxPos = new Vec3(position.x+radius*1.5, position.y+height*1.5, position.z+radius*1.5);
+
     }
 
 
@@ -34,8 +41,7 @@ public class Cylinder implements Shape {
     @Override
     public Hit intersect(Ray r) {
             Vec3 tmpX0 = new Vec3(r.o.x - position.x, 0,r.o.z - position.z);
-            Vec3 direction = new Vec3(r.d.x, 0, r.d.z);
-
+            Vec3 direction = new Vec3(r.d.x,0, r.d.z);
 
             double a = dotProduct(direction, direction);
             double b = 2 * dotProduct(tmpX0, direction);
@@ -59,12 +65,22 @@ public class Cylinder implements Shape {
             Vec3 norm_vec = getNormVecAtPoint(hitPoint);
             Hit h = new Hit(result, norm_vec, hitPoint, material);
 
-            if (hitPoint.y < position.y || hitPoint.y - position.y > height) {
+            if (hitPoint.y < position.y || subtract(vec3(position.x, hitPoint.y, position.z), position).length() > height) {
                 h = topDisk.intersect(r);
                 if (h == null) h = bottomDisk.intersect(r);
             }
 
 
             return h;
+    }
+
+    @Override
+    public Vec3 getMinPos() {
+        return minPos;
+    }
+
+    @Override
+    public Vec3 getMaxPos() {
+        return maxPos;
     }
 }

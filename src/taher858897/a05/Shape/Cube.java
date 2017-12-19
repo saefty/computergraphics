@@ -24,8 +24,8 @@ public class Cube implements Shape {
     }
 
     public Cube(Vec3 min, Vec3 max, Material m){
-        this.position = min;
-        this.position_max = max;
+        this.position = new Vec3(min(min.x,max.x), min(min.y,max.y), min(min.z, max.z));
+        this.position_max = new Vec3(max(min.x, max.x), max(min.y, max.y), max(min.z,max.z));
         this.material = m;
     }
 
@@ -94,5 +94,15 @@ public class Cube implements Shape {
         if (r.t0 > tmin || r.t1 < tmin) return null;
 
         return new Hit(tmin, norm_vec, r.pointAt(tmin), material);
+    }
+
+    @Override
+    public Vec3 getMinPos() {
+        return position;
+    }
+
+    @Override
+    public Vec3 getMaxPos() {
+        return position_max;
     }
 }

@@ -5,7 +5,7 @@ import cgtools.Vec3;
 import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
-
+/*
 public class Rectangle implements Shape {
     final Vec3 position;
     final double width;
@@ -41,3 +41,4 @@ public class Rectangle implements Shape {
         return new Hit(t, norm_vec, point, material);
     }
 }
+*/

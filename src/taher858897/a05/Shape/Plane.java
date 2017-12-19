@@ -10,6 +10,9 @@ public class Plane implements Shape {
     final Vec3 position;
     final Material material;
 
+    public static final Vec3 MIN_POS = new Vec3(Double.NEGATIVE_INFINITY);
+    public static final Vec3 MAX_POS = new Vec3(Double.POSITIVE_INFINITY);
+
     public Plane(Vec3 postion, Vec3 norm_vec, Material material) {
         this.norm_vec = Vec3.normalize(norm_vec);
         this.position = postion;
@@ -30,5 +33,15 @@ public class Plane implements Shape {
             norm = Vec3.multiply(-1, norm_vec);
         }
         return new Hit(t, norm, r.pointAt(t), material);
+    }
+
+    @Override
+    public Vec3 getMinPos() {
+        return MIN_POS;
+    }
+
+    @Override
+    public Vec3 getMaxPos() {
+        return MAX_POS;
     }
 }

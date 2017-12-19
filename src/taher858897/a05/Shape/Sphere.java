@@ -8,6 +8,7 @@ import taher858897.a05.RayTracer.Ray;
 import static cgtools.Vec3.dotProduct;
 import static cgtools.Vec3.multiply;
 import static cgtools.Vec3.multiplyFast;
+import static java.lang.Math.max;
 import static java.lang.Math.signum;
 
 public class Sphere implements Shape {
@@ -15,10 +16,15 @@ public class Sphere implements Shape {
     final double radius;
     final Material material;
 
+    final Vec3 minPos;
+    final Vec3 maxPos;
+
     public Sphere(Vec3 position, double radius,Material material) {
         this.position = position;
         this.radius = radius;
         this.material = material;
+        maxPos = new Vec3(position.x+radius,position.y+radius,position.z+radius);
+        minPos = new Vec3(position.x-radius,position.y-radius,position.z-radius);
     }
 
     public boolean contains(Vec3 x) {
@@ -81,5 +87,15 @@ public class Sphere implements Shape {
                 norm_vec,
                 hitPoint,
                 material);
+    }
+
+    @Override
+    public Vec3 getMinPos() {
+        return minPos;
+    }
+
+    @Override
+    public Vec3 getMaxPos() {
+        return maxPos;
     }
 }

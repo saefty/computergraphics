@@ -26,6 +26,6 @@ public class StratifiedSampler implements Sampler {
                 color = addFast(color, sampler.color(xs, ys));
             }
         }
-        return divide(color, this.amount);
+        return divideFast(color, this.amount);
     }
 }
