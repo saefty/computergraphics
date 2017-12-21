@@ -26,6 +26,11 @@ public class Disk extends Plane {
     }
 
     @Override
+    public BoundingBox bounds() {
+        return new BoundingBox(minPos, maxPos);
+    }
+
+    @Override
     public Vec3 getMinPos() {
         return minPos;
     }

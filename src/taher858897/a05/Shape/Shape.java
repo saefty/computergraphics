@@ -9,6 +9,7 @@ import java.io.Serializable;
 public interface Shape extends Serializable {
     static double EPSILON = 0.000000000001;
     Hit intersect(Ray r);
+    public BoundingBox bounds();
     Vec3 getMinPos();
     Vec3 getMaxPos();
 

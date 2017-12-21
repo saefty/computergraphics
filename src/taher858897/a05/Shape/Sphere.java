@@ -5,10 +5,9 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
-import static cgtools.Vec3.dotProduct;
-import static cgtools.Vec3.multiply;
-import static cgtools.Vec3.multiplyFast;
+import static cgtools.Vec3.*;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.Math.signum;
 
 public class Sphere implements Shape {
@@ -87,6 +86,14 @@ public class Sphere implements Shape {
                 norm_vec,
                 hitPoint,
                 material);
+    }
+
+    @Override
+    public BoundingBox bounds() {
+        BoundingBox bb = new BoundingBox(vec3(0),vec3(0));
+        bb = bb.extend(minPos);
+        bb = bb.extend(maxPos);
+        return bb;
     }
 
     @Override

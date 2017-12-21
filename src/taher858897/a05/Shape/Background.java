@@ -22,6 +22,11 @@ public class Background implements Shape {
     }
 
     @Override
+    public BoundingBox bounds() {
+        return new BoundingBox(MIN_POS, MAX_POS);
+    }
+
+    @Override
     public Vec3 getMinPos() {
         return MIN_POS;
     }

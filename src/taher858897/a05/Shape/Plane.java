@@ -36,6 +36,14 @@ public class Plane implements Shape {
     }
 
     @Override
+    public BoundingBox bounds() {
+        BoundingBox bb = new BoundingBox();
+        bb = bb.extend(MIN_POS);
+        bb = bb.extend(MAX_POS);
+        return bb;
+    }
+
+    @Override
     public Vec3 getMinPos() {
         return MIN_POS;
     }

@@ -46,6 +46,11 @@ public class Torus implements Shape {
     }
 
     @Override
+    public BoundingBox bounds() {
+        return new BoundingBox(minPos, maxPos);
+    }
+
+    @Override
     public Vec3 getMinPos() {
         return minPos;
     }

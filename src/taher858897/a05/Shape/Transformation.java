@@ -53,4 +53,8 @@ public class Transformation {
     public Vec3 transfromPointToObject(Vec3 in){
         return MInverted.transformPoint(in);
     }
+
+    public Mat4 getM() {
+        return M;
+    }
 }

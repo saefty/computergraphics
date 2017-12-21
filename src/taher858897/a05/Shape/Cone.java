@@ -48,6 +48,14 @@ public class Cone implements Shape {
     }
 
     @Override
+    public BoundingBox bounds() {
+        BoundingBox bb = new BoundingBox(vec3(0),vec3(0));
+        bb = bb.extend(minPos);
+        bb = bb.extend(maxPos);
+        return bb;
+    }
+
+    @Override
     public Vec3 getMinPos() {
         return minPos;
     }

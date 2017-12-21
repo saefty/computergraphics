@@ -26,8 +26,8 @@ public class Cylinder implements Shape {
         this.topDisk = new Disk(vec3(position.x,position.y+height, position.z), vec3(0,1,0), material, radius);
         this.bottomDisk = new Disk(vec3(position.x,position.y, position.z), vec3(0,-1,0), material, radius);
 
-        minPos = new Vec3(position.x-radius*1.5, position.y-EPSILON*1.5, position.z-radius*1.5);
-        maxPos = new Vec3(position.x+radius*1.5, position.y+height*1.5, position.z+radius*1.5);
+        minPos = new Vec3(position.x-radius, position.y-EPSILON, position.z+radius);
+        maxPos = new Vec3(position.x+radius, position.y+height, position.z-radius);
 
     }
 
@@ -72,6 +72,14 @@ public class Cylinder implements Shape {
 
 
             return h;
+    }
+
+    @Override
+    public BoundingBox bounds() {
+        BoundingBox bb = new BoundingBox(vec3(0),vec3(0));
+        bb = bb.extend(minPos);
+        bb = bb.extend(maxPos);
+        return bb;
     }
 
     @Override

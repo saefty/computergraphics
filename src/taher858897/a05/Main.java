@@ -19,18 +19,20 @@ import taher858897.a05.Threading.SampleMultithread;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 
 import static cgtools.Mat4.scale;
 import static cgtools.Vec3.*;
 import static java.lang.Math.*;
+import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "docs/a08-2.png";
-    public static int width  = 160 * 9;
-    public static int height = 90 * 9;
+    public static String  filename = "doc/a09-benchmark-scene.png";
+    public static int width  = 160 * 5;
+    public static int height = 90 * 5;
     public static int threads = 16;
-    public static int xDim = 16;
-    public static int yDim = 9;
+    public static int xDim = 160/2;
+    public static int yDim = 90/2;
 
 
     private static final int SAMPLING_RATE = 128;
@@ -45,10 +47,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        long start_time = System.currentTimeMillis();
         Image image = new Image(width, height);
         Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,1.5,1)));
-        transformation = Mat4.translate(vec3(1,1,2.5)).multiply(Mat4.rotate(-1,0,0,45)); // 1
+        transformation = Mat4.translate(vec3(1,2,1.5)).multiply(Mat4.rotate(-1,0,0,20)); // 1
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
         //transformation = Mat4.identity;
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
@@ -56,10 +57,22 @@ public class Main {
 
         Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
 
+        Group spehere = new Group();
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                for (int k = 0; k < 10; k++) {
+                    Material m = new DiffuseMaterial(rndColor());
+                    spehere.addShape(
+                        new Sphere(vec3(i/10.0, j/10.0,-k/10.0), .05, m)
+                    );
+                }
+            }
+        }
+
         Group scene = new Group(
-            bg,
             ground,
-            FootballScene.genScene(),
+            bg
+            //FootballScene.genScene(),
             //genSphereFractalScene(new Vec3(-1.4, .5,0), .6),
             //new Group(getImprovedSphereFlakeScene(vec3(0,1,0), .8, .5, 4)),
             //genSnowmanScene()
@@ -75,12 +88,29 @@ public class Main {
 
             new Sphere(vec3(-2.5+5, -.2, -1.5-.5), 0.6, new GlassMaterial(vec3(.8),1.5,0)),
             new Cube(vec3(-2.4+5, -1, -1.4-.5), vec3(-2.6+5, .8, -1.5-.5), new DiffuseMaterial(vec3(.70,.14,.14)))*/
-            new Group()
         );
+        System.out.println("Before");
+        System.out.println("Depth: " + spehere.maxDepth());
+        System.out.println("Nodes: " +spehere.nodes());
+
+        System.out.println("Flatternd");
+        ArrayList<Group> flat = spehere.flattern();
+        Group tmpFlat = new Group();
+        tmpFlat.addShapes(flat);
+        System.out.println("Depth: " + tmpFlat.maxDepth());
+        System.out.println("Nodes: " +tmpFlat.nodes());
+
+        System.out.println("BVH: ");
+        Group test = buildBVH(spehere.flattern(),0);
+        System.out.println("Depth: " + test.maxDepth());
+        System.out.println("Nodes: " +test.nodes());
+        scene.addShapes(test);
+
         Sampler tracer = raytrace(scene, stationaryCamera);
 
+        long start_time = System.currentTimeMillis();
         renderImage(image, tracer);
-
+        System.out.println(BoundingBox.misses);
         System.out.println((start_time-System.currentTimeMillis())/1000.0 + "s");
     }
 
