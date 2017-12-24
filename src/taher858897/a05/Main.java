@@ -31,15 +31,15 @@ import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "doc/a11-1.png";
-    public static int width  = 160 * 6;
-    public static int height = 90 * 6;
+    public static String  filename = "doc/a10-2.png";
+    public static int width  = 160 * 12;
+    public static int height = 90 * 12;
     public static int threads = 8;
     public static int xDim = 160;
     public static int yDim = 90;
 
 
-    private static final int SAMPLING_RATE = 32;
+    private static final int SAMPLING_RATE = 128;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -90,7 +90,7 @@ public class Main {
         scene.addShape(buildBVH(testSpheres.flattern(),1));
 
         ArrayList<Light> lights = new ArrayList<>();
-        lights.add(new PointLight(vec3(4,4,4), vec3(100)));
+        lights.add(new PointLight(vec3(0,8,0), vec3(50)));
 
         Sampler tracer = raytrace(
                 new World(scene, lights)
