@@ -65,26 +65,22 @@ public class Sphere implements Shape {
         double t = Math.min(t1, t2);
         if (t <= 0) t = Math.max(t1, t2);
         result = t;
-        /*if (t1 >= 0 && discriminant == 0)
-            result = t1;
-        else if (t2 >= 0 && discriminant == 0)
-            result = t2;
-        else if (discriminant > 0)
-            if (t1 > 0 && t2 > 0)
-                result = Math.min(t1, t2);
-            else if (t1 > 0)
-                result = t1;
-            else if (t2 > 0)
-                result = t2;*/
 
         if (r.t0 > result || r.t1 < result) return null;
         Vec3 hitPoint = r.pointAt(result);
-        Vec3 norm_vec = getNormVecAtPoint(hitPoint);
+        Vec3 normal = getNormVecAtPoint(hitPoint);
+        normal = normalizeFast(normal);
+
+        double inclination = Math.acos(normal.y);
+        double azimuth = Math.PI + Math.atan2(normal.x, normal.z);
+        double u = azimuth / (2 * Math.PI);
+        double v = inclination / Math.PI;
 
         return new Hit(
                 result,
-                norm_vec,
+                normal,
                 hitPoint,
+                new Vec3(u,v,0),
                 material);
     }
 

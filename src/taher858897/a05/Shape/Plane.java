@@ -5,6 +5,8 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import static cgtools.Vec3.*;
+
 public class Plane implements Shape {
     final Vec3 norm_vec;
     final Vec3 position;
@@ -22,7 +24,7 @@ public class Plane implements Shape {
     @Override
     public Hit intersect(Ray r) {
         double up = Vec3.dotProduct(
-                Vec3.subtract(position, r.o),
+                subtract(position, r.o),
                 norm_vec);
         double down = Vec3.dotProduct(norm_vec, r.d);
         if (down == 0) return null;
@@ -30,9 +32,10 @@ public class Plane implements Shape {
         if (t <= r.t0 ) return  null;
         Vec3 norm = norm_vec;
         if (Vec3.dotProduct(norm_vec, r.d) > 0){
-            norm = Vec3.multiply(-1, norm_vec);
+            norm = multiply(-1, norm_vec);
         }
-        return new Hit(t, norm, r.pointAt(t), material);
+        Vec3 point = r.pointAt(t);
+        return new Hit(t, norm, r.pointAt(t), subtract(vec3(position.x, position.z,0), vec3(point.x, point.z,0)), material);
     }
 
     @Override
@@ -51,5 +54,13 @@ public class Plane implements Shape {
     @Override
     public Vec3 getMaxPos() {
         return MAX_POS;
+    }
+
+    public Object getDepth() {
+        return 1000;
+    }
+
+    public double getWidth() {
+        return 1000;
     }
 }

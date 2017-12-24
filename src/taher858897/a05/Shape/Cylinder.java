@@ -6,6 +6,9 @@ import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
 import static cgtools.Vec3.*;
+import static java.lang.Math.atan;
+import static java.lang.Math.atan2;
+import static java.lang.Math.sqrt;
 
 public class Cylinder implements Shape {
     final Vec3 position;
@@ -50,7 +53,7 @@ public class Cylinder implements Shape {
             double discriminant = b * b - 4 * a * c;
 
             if (discriminant < 0) return null;
-            double d_sqrt = Math.sqrt(discriminant);
+            double d_sqrt = sqrt(discriminant);
 
             double t1 = -(b  + d_sqrt)/(2*a);
             double t2 = -(b - d_sqrt)/(2*a);
@@ -63,13 +66,12 @@ public class Cylinder implements Shape {
             if (r.t0 > result || r.t1 < result) return null;
             Vec3 hitPoint = r.pointAt(result);
             Vec3 norm_vec = getNormVecAtPoint(hitPoint);
-            Hit h = new Hit(result, norm_vec, hitPoint, material);
+            Hit h = new Hit(result, norm_vec, hitPoint, vec3(sqrt(hitPoint.x*hitPoint.x+hitPoint.z*hitPoint.z),atan(hitPoint.y/hitPoint.x),0), material);
 
             if (hitPoint.y < position.y || subtract(vec3(position.x, hitPoint.y, position.z), position).length() > height) {
                 h = topDisk.intersect(r);
                 if (h == null) h = bottomDisk.intersect(r);
             }
-
 
             return h;
     }

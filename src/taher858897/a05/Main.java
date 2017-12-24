@@ -1,17 +1,21 @@
 package taher858897.a05;
 
+import cgtools.ImageTexture;
 import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.FootballScene;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
+import taher858897.a05.Camera.PanoramaCamera;
 import taher858897.a05.Camera.StationaryCamera;
 import taher858897.a05.Material.*;
+import taher858897.a05.RayTracer.*;
 import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.Shape.*;
-import taher858897.a05.RayTracer.RayTracer;
 import taher858897.a05.Sampler.GammaSampler;
 import taher858897.a05.Shape.Shape;
+import taher858897.a05.Textures.PicTexture;
+import taher858897.a05.Textures.TransformedPicTexture;
 import taher858897.a05.Threading.Executors.RayTraceExcecutor;
 import taher858897.a05.Threading.Executors.RayTraceFragmentExcecutor;
 import taher858897.a05.Threading.ImageMultithreadSocketWriter;
@@ -27,86 +31,70 @@ import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "doc/a09-benchmark-scene.png";
-    public static int width  = 160 * 5;
-    public static int height = 90 * 5;
-    public static int threads = 16;
-    public static int xDim = 160/2;
-    public static int yDim = 90/2;
+    public static String  filename = "doc/a10-2.png";
+    public static int width  = 160 * 6;
+    public static int height = 90 * 6;
+    public static int threads = 8;
+    public static int xDim = 160;
+    public static int yDim = 90;
 
 
-    private static final int SAMPLING_RATE = 128;
+    private static final int SAMPLING_RATE = 32;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
 
 
-    public static Sampler raytrace(Group scene, Camera camera){
-        RayTracer raySampler = new RayTracer(scene, camera);
+    public static Sampler raytrace(World world, Camera camera){
+        RayTracer raySampler = new RayTracer(world, camera);
         return raySampler;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
-        Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,1.5,1)));
-        transformation = Mat4.translate(vec3(1,2,1.5)).multiply(Mat4.rotate(-1,0,0,20)); // 1
+        Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,.5,2)));
+        //transformation = Mat4.translate(vec3(0,0,2));
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
         //transformation = Mat4.identity;
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
-        Background bg = new Background(new BackgroundMaterial( new Vec3(.7)));
-
-        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
-
-        Group spehere = new Group();
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
-                for (int k = 0; k < 10; k++) {
-                    Material m = new DiffuseMaterial(rndColor());
-                    spehere.addShape(
-                        new Sphere(vec3(i/10.0, j/10.0,-k/10.0), .05, m)
-                    );
-                }
-            }
+        Background bg = null;
+        try {
+            bg = new Background(new BackgroundMaterial(new TransformedPicTexture("texture/skyPano.jpg", Mat4.scale(1,2,1))));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        Group scene = new Group(
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new PicTexture("texture/gravel.jpg", black)));
+
+        Group scene = null;
+        scene = new Group(
             ground,
             bg
-            //FootballScene.genScene(),
-            //genSphereFractalScene(new Vec3(-1.4, .5,0), .6),
-            //new Group(getImprovedSphereFlakeScene(vec3(0,1,0), .8, .5, 4)),
-            //genSnowmanScene()
-            /*genSirpinskiScene(),
-            new Cube(vec3(-.5, -1, -.38), vec3(.5, -.25, -1), new ReflectionMaterial(vec3(.8,.8,.0),.15)),
-            new Cube(vec3(-.5, -.24, -.38), vec3(-.49, .05, -1), new ReflectionMaterial(vec3(.9),0)),
-
-            new Cube(vec3(-.05, -.5, -.75+.1), vec3(.05, .5, -.76), new DiffuseMaterial(vec3(.0,.4,.8))),
-            new Sphere(vec3(0, .25, -.75+.1), .2, new GlassMaterial(vec3(.8),1.8,0)),
-            new Sphere(vec3(-2.5, -.2, -1.5), 0.2, new ReflectionMaterial(vec3(.14,.70,.14),.00)),
-            new Sphere(vec3(-2.5, -.2, -1.5), 0.6, new GlassMaterial(vec3(.8),1.8,0)),
-            new Cube(vec3(-2.4, -1, -1.4), vec3(-2.5, .8, -1.5), new DiffuseMaterial(vec3(.0,.4,.8))),
-
-            new Sphere(vec3(-2.5+5, -.2, -1.5-.5), 0.6, new GlassMaterial(vec3(.8),1.5,0)),
-            new Cube(vec3(-2.4+5, -1, -1.4-.5), vec3(-2.6+5, .8, -1.5-.5), new DiffuseMaterial(vec3(.70,.14,.14)))*/
         );
-        System.out.println("Before");
-        System.out.println("Depth: " + spehere.maxDepth());
-        System.out.println("Nodes: " +spehere.nodes());
 
-        System.out.println("Flatternd");
-        ArrayList<Group> flat = spehere.flattern();
-        Group tmpFlat = new Group();
-        tmpFlat.addShapes(flat);
-        System.out.println("Depth: " + tmpFlat.maxDepth());
-        System.out.println("Nodes: " +tmpFlat.nodes());
+        Group testSpheres = new Group(
+            new Sphere(vec3(2,0,-.5), 1,new ReflectionMaterial(new PicTexture("texture/world.jpg", black),0)),
+            new Sphere(vec3(-.5,0,-.8), 1, new DiffuseMaterial(new PicTexture("texture/world.jpg", black))),
 
-        System.out.println("BVH: ");
-        Group test = buildBVH(spehere.flattern(),0);
-        System.out.println("Depth: " + test.maxDepth());
-        System.out.println("Nodes: " +test.nodes());
-        scene.addShapes(test);
+            new Group(new Cone(vec3(-2,-1,-.4),.8,20, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black)))),
+            new Group(new Cylinder(vec3(1.5,-1,.6),.2,.8, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black))))
+        );
+        Material m = new DiffuseMaterial(new TransformedPicTexture("texture/stone.jpg", Mat4.scale(vec3(.4))));
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                testSpheres.addShape(
+                    new Group(new Cube(vec3(-2.5,-.9,0), vec3(-2,-.75,.25), m), Mat4.translate(-.5*i,.15*i,.25*j))
+                );
+            }
+        }
+        scene.addShape(buildBVH(testSpheres.flattern(),1));
 
-        Sampler tracer = raytrace(scene, stationaryCamera);
+        ArrayList<Light> lights = new ArrayList<>();
+        lights.add(new PointLight(vec3(0,8,0), vec3(50)));
+
+        Sampler tracer = raytrace(
+                new World(scene, lights)
+                , stationaryCamera);
 
         long start_time = System.currentTimeMillis();
         renderImage(image, tracer);
@@ -446,12 +434,12 @@ public class Main {
         return res;
     }
 
-    public static Group genCylinderCircle2(Vec3 pos, double radius, double startHeight, double endHeight, double count){
+    public static Group genCylinderCircle2(Vec3 pos, double radius, double startHeight, double endHeight, double count) throws IOException {
         Group res = new Group();
         for(int i = 0; i < count; i++){
-            Vec3 cur_pos = new Vec3(radius*sin(2*PI*i/count)+ pos.x, pos.y+ i/10.0, radius*cos(2*PI*i/count) + pos.z);
+            Vec3 cur_pos = new Vec3(radius*sin(2*PI*i/count)+ pos.x, pos.y, radius*cos(2*PI*i/count) + pos.z);
             res.addShape(
-                new Sphere(cur_pos, startHeight*i/count+endHeight*(1-i/count), new ReflectionMaterial(rndColor(),.2))
+                new Sphere(cur_pos, startHeight*i/count+endHeight*(1-i/count), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
             );
         }
         return res;

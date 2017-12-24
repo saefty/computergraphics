@@ -1,18 +1,22 @@
 package taher858897.a05.Material;
 
-import cgtools.Random;
 import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
+import taher858897.a05.Textures.ConstantTexture;
+import taher858897.a05.Textures.Texture;
 
 import static cgtools.Vec3.normalizeFast;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class DiffuseMaterial implements Material{
-    final Vec3 color;
+    final Texture texture;
 
+    public DiffuseMaterial(Texture texture) {
+        this.texture = texture;
+    }
     public DiffuseMaterial(Vec3 color) {
-        this.color = color;
+        this.texture = new ConstantTexture(color);
     }
 
     @Override
@@ -30,6 +34,10 @@ public class DiffuseMaterial implements Material{
 
     @Override
     public Vec3 albedo(Ray r, Hit h) {
-        return color;
+        if (h.textureCords == null) {
+            return texture.getConstant();
+        } else {
+            return texture.getPicture(h.textureCords);
+        }
     }
 }

@@ -30,6 +30,7 @@ public class Transformation {
             h.t,
             transformNormVecToWorld(h.normVec),
             transformPointToWorld(h.position),
+            h.textureCords,
             h.material
         );
     }

@@ -75,23 +75,39 @@ public class Cube implements Shape {
         tmin == t6: front
         */
         //if (tmin == t4) norm_vec = new Vec3(0,-1, 0);// down?
+        Vec3 hitPoint =  r.pointAt(tmin);
+        Vec3 textureCord = null;
         if (tmin == t1) {
             norm_vec = new Vec3(-1, 0, 0);
+            textureCord = new Vec3((hitPoint.z-position.z)/(position_max.z-position.z),(hitPoint.y-position.y)/(position_max.y-position.y),0);
         } else if (tmin == t2) {
             norm_vec = new Vec3(1, 0, 0);
+            textureCord = new Vec3((hitPoint.z-position.z)/(position_max.z-position.z),(hitPoint.y-position.y)/(position_max.y-position.y),0);
+
         } else if (tmin == t3) {
             norm_vec = new Vec3(0, -1, 0);
+            textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.z-position.z)/(position_max.z-position.z),0);
+
         } else if (tmin == t4) {
             norm_vec = new Vec3(0, 1, 0);
+            textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.z-position.z)/(position_max.z-position.z),0);
+
         } else if (tmin == t5) {
             norm_vec = new Vec3(0, 0, -1);
+            textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.y-position.y)/(position_max.y-position.y),0);
+
         } else if (tmin == t6) {
             norm_vec = new Vec3(0, 0, 1);
+            textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.y-position.y)/(position_max.y-position.y),0);
+
         }
 
         if (r.t0 > tmin || r.t1 < tmin) return null;
 
-        return new Hit(tmin, norm_vec, r.pointAt(tmin), material);
+
+        return new Hit(tmin, norm_vec, hitPoint,
+                textureCord
+                , material);
     }
 
     @Override

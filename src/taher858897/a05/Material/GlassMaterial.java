@@ -4,6 +4,8 @@ import cgtools.Random;
 import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
+import taher858897.a05.Textures.ConstantTexture;
+import taher858897.a05.Textures.Texture;
 
 import static cgtools.Vec3.*;
 import static java.lang.Math.pow;
@@ -12,14 +14,17 @@ import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class GlassMaterial extends ReflectionMaterial implements Material{
     private static double  WORLD_REFRACTION_INDEX = 1.000272;
-    private Vec3 color;
     private double refractionIndex;
 
     public GlassMaterial(Vec3 color, double refractionIndex, double rnd_factor) {
         super(color, rnd_factor);
-        this.color = color;
         this.refractionIndex = refractionIndex;
     }
+    public GlassMaterial(Texture texture, double refractionIndex, double rndFactor) {
+        super(texture, rndFactor);
+        this.refractionIndex = refractionIndex;
+    }
+
 
     @Override
     public Vec3 emittedRadiance(Ray r, Hit h) {
@@ -31,7 +36,7 @@ public class GlassMaterial extends ReflectionMaterial implements Material{
         double n1 = WORLD_REFRACTION_INDEX;
         double n2 = refractionIndex;
         if (Vec3.dotProduct(r.d, h.normVec) > 0 ){
-            h = new Hit(h.t, multiply(-1, h.normVec), h.position, h.material);
+            h = new Hit(h.t, multiply(-1, h.normVec), h.position, h.textureCords, h.material);
             double tmp = n1;
             n1 = n2;
             n2 = tmp;
@@ -77,6 +82,6 @@ public class GlassMaterial extends ReflectionMaterial implements Material{
 
     @Override
     public Vec3 albedo(Ray r, Hit h) {
-        return color;
+        return super.albedo(r, h);
     }
 }

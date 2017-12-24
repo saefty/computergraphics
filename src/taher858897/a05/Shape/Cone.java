@@ -96,8 +96,9 @@ public class Cone implements Shape {
 
         if (r.t0 > result || r.t1 < result) return null;
         Vec3 hitPoint = r.pointAt(result);
+        Vec3 textureCords = new Vec3(sqrt(hitPoint.x*hitPoint.x+hitPoint.z*hitPoint.z), atan(hitPoint.y/hitPoint.x),0);
 
-        Hit h = new Hit(result, normalizeFast(vec3(cos(radians), sin(radians), -hitPoint.z)), hitPoint, material);
+        Hit h = new Hit(result, normalizeFast(vec3(cos(radians), sin(radians), -hitPoint.z)), hitPoint, textureCords, material);
         //h= null;
         if (hitPoint.y < position.y) {
             return null;

@@ -5,6 +5,12 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.util.Objects;
+
+import static cgtools.Vec3.add;
+import static cgtools.Vec3.addFast;
+import static cgtools.Vec3.vec3;
+
 public class Disk extends Plane {
 
     final double radius;
@@ -21,8 +27,10 @@ public class Disk extends Plane {
     @Override
     public Hit intersect(Ray r) {
         Hit h = super.intersect(r);
-        if (h != null && Vec3.subtract(position, h.position).length() > radius) return null;
-        return h;
+        if (h == null) return null;
+        double distance = Vec3.subtract(position, h.position).length();
+        if (distance > radius) return null;
+        return new Hit(h.t, h.normVec, h.position, addFast(h.textureCords, vec3(radius, radius,0)), material);
     }
 
     @Override

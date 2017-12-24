@@ -1,5 +1,6 @@
 package taher858897;
 
+import cgtools.ImageTexture;
 import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.a05.Material.DiffuseMaterial;
@@ -7,23 +8,34 @@ import taher858897.a05.Material.GlassMaterial;
 import taher858897.a05.Material.Material;
 import taher858897.a05.Material.ReflectionMaterial;
 import taher858897.a05.Shape.*;
+import taher858897.a05.Textures.ConstantTexture;
+import taher858897.a05.Textures.PicTexture;
+
+import java.io.IOException;
 
 import static cgtools.Mat4.rotate;
 import static cgtools.Mat4.translate;
-import static cgtools.Vec3.green;
-import static cgtools.Vec3.vec3;
-import static cgtools.Vec3.white;
+import static cgtools.Vec3.*;
 
 public class FootballScene {
 
     private static Material goalMaterial = new ReflectionMaterial(vec3(.7),.1);
-    private static Material fieldMaterial = new DiffuseMaterial(vec3(0,80/255.0  ,0));
+    private static Material fieldMaterial = new DiffuseMaterial(new ConstantTexture(vec3(0,80/255.0  ,0)));
     private static Material tableMaterial = new ReflectionMaterial(vec3(86/255.0,47/255.0 ,14/255.0),0.3);
-    private static Material ballMaterial = new GlassMaterial(vec3(.7),1.5,0);
+    private static Material ballMaterial;
+
+    static {
+        try {
+            ballMaterial = new DiffuseMaterial(new PicTexture(new ImageTexture("doc/a01.png"), red));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Material ballMaterial1 = new GlassMaterial(vec3(.8,.2,.2),1.5,0);
     private static Material ballMaterial2 = new GlassMaterial(vec3(.1,.1,.8),1.5,0);
 
-    private static Material holderMaterial = new DiffuseMaterial(vec3(.05));
+    private static Material holderMaterial = new DiffuseMaterial(new ConstantTexture(vec3(.05)));
 
     private static Material pointMaterial1 = new GlassMaterial(vec3(.1,.1,.8),1.5,0);
     private static Material pointMaterial2 = new GlassMaterial(vec3(.8,.2,.2),1.5,0);
