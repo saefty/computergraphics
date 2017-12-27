@@ -6,7 +6,7 @@ import taher858897.a05.RayTracer.Ray;
 import taher858897.a05.Textures.ConstantTexture;
 import taher858897.a05.Textures.Texture;
 
-import static cgtools.Vec3.normalizeFast;
+import static cgtools.Vec3.*;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class DiffuseMaterial implements Material{
@@ -27,7 +27,7 @@ public class DiffuseMaterial implements Material{
     @Override
     public Ray scatteredRay(Ray r, Hit h) {
         Vec3 rndD = Vec3.randomDirection();
-        rndD = Vec3.add(h.normVec, rndD);
+        rndD = addFast(rndD, h.normVec);
         return new Ray(h.position, normalizeFast(rndD), EPSILON, Double.POSITIVE_INFINITY);
     }
 

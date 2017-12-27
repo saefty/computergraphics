@@ -182,15 +182,9 @@ public class Group implements Shape {
     }
 
     @Override
-    public Vec3 getMinPos() {
-        return this.hitBox != null ? hitBox.getMinPos() : vec3(Double.NEGATIVE_INFINITY);
+    public boolean contains(Vec3 pos) {
+        return false;
     }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return this.hitBox != null ? hitBox.getMaxPos() : vec3(Double.POSITIVE_INFINITY);
-    }
-
     @Override
     public String toString() {
         return "Group:" + shapes.toString();

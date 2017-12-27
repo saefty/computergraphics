@@ -47,20 +47,7 @@ public class Plane implements Shape {
     }
 
     @Override
-    public Vec3 getMinPos() {
-        return MIN_POS;
-    }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return MAX_POS;
-    }
-
-    public Object getDepth() {
-        return 1000;
-    }
-
-    public double getWidth() {
-        return 1000;
+    public boolean contains(Vec3 pos) {
+        return false;
     }
 }

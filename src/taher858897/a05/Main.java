@@ -25,21 +25,22 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
+import static cgtools.Mat4.rotate;
 import static cgtools.Mat4.scale;
 import static cgtools.Vec3.*;
 import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "doc/a10-2.png";
+    public static String  filename = "docs/b04.png";
     public static int width  = 160 * 12;
     public static int height = 90 * 12;
-    public static int threads = 8;
+    public static int threads = 16;
     public static int xDim = 160;
     public static int yDim = 90;
 
 
-    private static final int SAMPLING_RATE = 128;
+    private static final int SAMPLING_RATE = 256;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -52,10 +53,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
-        Mat4 transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,.5,2)));
-        //transformation = Mat4.translate(vec3(0,0,2));
+        Mat4 transformation = rotate(vec3(-1,0,3),45).multiply(Mat4.translate(vec3(0,.5,2)));
+        transformation = Mat4.translate(vec3(0,0,1));
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
-        //transformation = Mat4.identity;
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
         Background bg = null;
         try {
@@ -72,22 +72,30 @@ public class Main {
             bg
         );
 
-        Group testSpheres = new Group(
-            new Sphere(vec3(2,0,-.5), 1,new ReflectionMaterial(new PicTexture("texture/world.jpg", black),0)),
-            new Sphere(vec3(-.5,0,-.8), 1, new DiffuseMaterial(new PicTexture("texture/world.jpg", black))),
-
-            new Group(new Cone(vec3(-2,-1,-.4),.8,20, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black)))),
-            new Group(new Cylinder(vec3(1.5,-1,.6),.2,.8, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black))))
-        );
-        Material m = new DiffuseMaterial(new TransformedPicTexture("texture/stone.jpg", Mat4.scale(vec3(.4))));
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                testSpheres.addShape(
-                    new Group(new Cube(vec3(-2.5,-.9,0), vec3(-2,-.75,.25), m), Mat4.translate(-.5*i,.15*i,.25*j))
-                );
-            }
-        }
-        scene.addShape(buildBVH(testSpheres.flattern(),1));
+        scene.addShapes(
+            new Group(
+                    new Group(
+                        CSG.union(
+                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                        ),
+                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(-2,-1.5,-.8))
+                    ),
+                    new Group(
+                        CSG.difference(
+                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                        ),
+                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(0,-1.5,-.8))
+                    ),
+                    new Group(
+                            CSG.intersection(
+                                    new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                    ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                            ),
+                            Mat4.scale(.5,.5,.5).multiply(Mat4.translate(2,-1.5,-.8))
+                    )
+            ));
 
         ArrayList<Light> lights = new ArrayList<>();
         lights.add(new PointLight(vec3(0,8,0), vec3(50)));
@@ -150,15 +158,15 @@ public class Main {
                 p3 = new Vec3(0,  -(size+size*scale), 0),
                 p4 = new Vec3(0, 0, (size+size*scale)),
                 p5 = new Vec3(0, 0,  -(size+size*scale));
-        Material m = new GlassMaterial(vec3(.8),1.2,0);
+        Material m = new ReflectionMaterial(vec3(.7),.1);
         Group initialGroup = new Group(
             new Sphere(vec3(0), size, m),
-            new Sphere(p0, size*scale, new GlassMaterial(rndColor(),1.2,0)),
-            new Sphere(p1, size*scale, new GlassMaterial(rndColor(),1.2,0)),
-            new Sphere(p2, size*scale, new GlassMaterial(rndColor(),1.2,0)),
-            new Sphere(p3, size*scale, new GlassMaterial(rndColor(),1.2,0)),
-            new Sphere(p4, size*scale, new GlassMaterial(rndColor(),1.2,0)),
-            new Sphere(p5, size*scale, new GlassMaterial(rndColor(),1.2,0))
+            new Sphere(p0, size*scale, m),
+            new Sphere(p1, size*scale, m),
+            new Sphere(p2, size*scale, m),
+            new Sphere(p3, size*scale, m),
+            new Sphere(p4, size*scale, m),
+            new Sphere(p5, size*scale, m)
         );
 
         Group g = new Group(
@@ -276,19 +284,16 @@ public class Main {
 
     public static Group genSirpinskiScene(){
 
-        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new Vec3(0.7)));
-
         Group scene = new Group(
-                ground,
                 getTriangleShape(
                     new Vec3(-.5,-.25,-1+.1), new Vec3(.5,-.25,-1+.1), new Vec3(0,-.25,-.5+.1), new Vec3(0, .25, -.75+.25+.1),
-                    5
+                    6
                 )
         );
         scene.addShape(sirpinski(
             new Group(),
             new Vec3(-.5,-.25,-1+.1), new Vec3(.5,-.25,-1+.1), new Vec3(0,-.25,-.5+.1), new Vec3(0, .25, -.75+.25+.1),
-            4
+            5
         ));
         return scene;
     }

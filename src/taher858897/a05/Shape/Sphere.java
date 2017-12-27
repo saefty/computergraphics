@@ -27,13 +27,8 @@ public class Sphere implements Shape {
     }
 
     public boolean contains(Vec3 x) {
-        Vec3 tmp = Vec3.add(
-                x,
-                Vec3.multiply(
-                        -1,
-                        new Vec3(position.x, position.y, position.z)
-                ));
-        return dotProduct(tmp, tmp) <= radius*radius;
+        Vec3 tmp = subtract(position, x);
+        return dotProduct(tmp, tmp) < radius*radius;
     }
 
     public Vec3 getNormVecAtPoint(Vec3 x){
@@ -90,15 +85,5 @@ public class Sphere implements Shape {
         bb = bb.extend(minPos);
         bb = bb.extend(maxPos);
         return bb;
-    }
-
-    @Override
-    public Vec3 getMinPos() {
-        return minPos;
-    }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return maxPos;
     }
 }

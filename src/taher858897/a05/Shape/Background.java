@@ -35,13 +35,8 @@ public class Background implements Shape {
     }
 
     @Override
-    public Vec3 getMinPos() {
-        return MIN_POS;
-    }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return MAX_POS;
+    public boolean contains(Vec3 pos) {
+        return false;
     }
 
 }

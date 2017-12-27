@@ -63,6 +63,13 @@ public class RayTraceFragmentExcecutor {
         started = rayTraceTasks.size();
         try {
             List<Future<RayTraceTaskFragment>> futures = executorService.invokeAll(rayTraceTasks);
+            for (Future<RayTraceTaskFragment> future: futures) {
+                try {
+                    future.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
             return img;
         } catch (InterruptedException  e) {
             e.printStackTrace();

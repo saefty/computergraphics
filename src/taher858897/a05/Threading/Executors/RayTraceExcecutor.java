@@ -6,6 +6,7 @@ import taher858897.a05.Threading.SampleMultithread;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -25,6 +26,13 @@ public class RayTraceExcecutor {
         public Thread newThread(Runnable r) {
             threadIds++;
             Thread t = new Thread(r);
+            t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                @Override
+                public void uncaughtException(Thread t, Throwable e) {
+                    t.interrupt();
+                    e.printStackTrace();
+                }
+            });
             t.setName("T-" + threadIds);
             return t;
         }

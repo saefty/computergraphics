@@ -29,13 +29,13 @@ public class Cube implements Shape {
 
     @Override
     public Hit intersect(Ray r) {
+        if (!bounds().intersect(r))return null;
         double X_MIN = position.x;
         double X_MAX = position_max.x;
         double Y_MIN = position.y;
         double Y_MAX = position_max.y;
         double Z_MIN = position.z;
         double Z_MAX = position_max.z;
-
         double x_frac = 1.0 / r.d.x,
                y_frac = 1.0 / r.d.y,
                z_frac = 1.0 / r.d.z;
@@ -83,29 +83,23 @@ public class Cube implements Shape {
         } else if (tmin == t2) {
             norm_vec = new Vec3(1, 0, 0);
             textureCord = new Vec3((hitPoint.z-position.z)/(position_max.z-position.z),(hitPoint.y-position.y)/(position_max.y-position.y),0);
-
         } else if (tmin == t3) {
             norm_vec = new Vec3(0, -1, 0);
             textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.z-position.z)/(position_max.z-position.z),0);
-
         } else if (tmin == t4) {
             norm_vec = new Vec3(0, 1, 0);
             textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.z-position.z)/(position_max.z-position.z),0);
-
         } else if (tmin == t5) {
             norm_vec = new Vec3(0, 0, -1);
             textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.y-position.y)/(position_max.y-position.y),0);
-
         } else if (tmin == t6) {
             norm_vec = new Vec3(0, 0, 1);
             textureCord = new Vec3(1*(hitPoint.x-position.x)/(position_max.x-position.x),(hitPoint.y-position.y)/(position_max.y-position.y),0);
-
         }
 
         if (r.t0 > tmin || r.t1 < tmin) return null;
 
-
-        return new Hit(tmin, norm_vec, hitPoint,
+        return new Hit(tmin, norm_vec, r.pointAt(tmin),
                 textureCord
                 , material);
     }
@@ -119,12 +113,7 @@ public class Cube implements Shape {
     }
 
     @Override
-    public Vec3 getMinPos() {
-        return position;
-    }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return position_max;
+    public boolean contains(Vec3 v) {
+        return position.x <= v.x && position.y <= v.y && position.z <= v.z && position_max.x >= v.x && position_max.y >= v.y && position_max.z >= v.z;
     }
 }

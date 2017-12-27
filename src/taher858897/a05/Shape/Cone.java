@@ -56,13 +56,8 @@ public class Cone implements Shape {
     }
 
     @Override
-    public Vec3 getMinPos() {
-        return minPos;
-    }
-
-    @Override
-    public Vec3 getMaxPos() {
-        return maxPos;
+    public boolean contains(Vec3 pos) {
+        return false;
     }
 
     public Hit intersect(Ray r, boolean withNormVec) {
