@@ -1,9 +1,7 @@
 package taher858897.a05;
 
-import cgtools.ImageTexture;
 import cgtools.Mat4;
 import cgtools.Vec3;
-import taher858897.FootballScene;
 import taher858897.Image;
 import taher858897.a05.Camera.Camera;
 import taher858897.a05.Camera.PanoramaCamera;
@@ -16,10 +14,7 @@ import taher858897.a05.Sampler.GammaSampler;
 import taher858897.a05.Shape.Shape;
 import taher858897.a05.Textures.PicTexture;
 import taher858897.a05.Textures.TransformedPicTexture;
-import taher858897.a05.Threading.Executors.RayTraceExcecutor;
 import taher858897.a05.Threading.Executors.RayTraceFragmentExcecutor;
-import taher858897.a05.Threading.ImageMultithreadSocketWriter;
-import taher858897.a05.Threading.SampleMultithread;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -27,13 +22,14 @@ import java.util.ArrayList;
 
 import static cgtools.Mat4.rotate;
 import static cgtools.Mat4.scale;
+import static cgtools.Mat4.translate;
 import static cgtools.Vec3.*;
 import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "docs/b04.png";
-    public static int width  = 160 * 12;
+    public static String  filename = "docs/b04-1.png";
+    public static int width  = 160 * 24;
     public static int height = 90 * 12;
     public static int threads = 16;
     public static int xDim = 160;
@@ -53,10 +49,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
-        Mat4 transformation = rotate(vec3(-1,0,3),45).multiply(Mat4.translate(vec3(0,.5,2)));
-        transformation = Mat4.translate(vec3(0,0,1));
+        Mat4 transformation = Mat4.translate(vec3(1,.3,0));
+        //transformation = translate(2,.5,-2);
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
-        Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
+        Camera stationaryCamera = new PanoramaCamera(PI/2, width, height, transformation);
         Background bg = null;
         try {
             bg = new Background(new BackgroundMaterial(new TransformedPicTexture("texture/skyPano.jpg", Mat4.scale(1,2,1))));
@@ -71,8 +67,11 @@ public class Main {
             ground,
             bg
         );
-
         scene.addShapes(
+            buildBVH(FootballScene.genScene().flattern(),1)
+        );
+
+        /*scene.addShapes(
             new Group(
                     new Group(
                         CSG.union(
@@ -95,7 +94,7 @@ public class Main {
                             ),
                             Mat4.scale(.5,.5,.5).multiply(Mat4.translate(2,-1.5,-.8))
                     )
-            ));
+            ));*/
 
         ArrayList<Light> lights = new ArrayList<>();
         lights.add(new PointLight(vec3(0,8,0), vec3(50)));
