@@ -28,15 +28,15 @@ import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
 
 public class Main {
-    public static String  filename = "docs/b04-1.png";
-    public static int width  = 160 * 24;
-    public static int height = 90 * 12;
-    public static int threads = 16;
+    public static String  filename = "doc/b02.png";
+    public static int width  = 160 * 8;
+    public static int height = 90 * 8;
+    public static int threads = 8;
     public static int xDim = 160;
     public static int yDim = 90;
 
 
-    private static final int SAMPLING_RATE = 256;
+    private static final int SAMPLING_RATE = 128;
     private static final double GAMMA = 2.2;
 
     private static final boolean WITH_SOCKET = false;
@@ -49,10 +49,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
-        Mat4 transformation = Mat4.translate(vec3(1,.3,0));
+        Mat4 transformation = Mat4.translate(vec3(1.2,2.2,2)).multiply(rotate(0,1,0,90)).multiply(rotate(-1,0,0,45));
         //transformation = translate(2,.5,-2);
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
-        Camera stationaryCamera = new PanoramaCamera(PI/2, width, height, transformation);
+        Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
         Background bg = null;
         try {
             bg = new Background(new BackgroundMaterial(new TransformedPicTexture("texture/skyPano.jpg", Mat4.scale(1,2,1))));
@@ -65,12 +65,18 @@ public class Main {
         Group scene = null;
         scene = new Group(
             ground,
-            bg
-        );
-        scene.addShapes(
-            buildBVH(FootballScene.genScene().flattern(),1)
-        );
+            bg,
+            new Cylinder(vec3(-1,0,4), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
+            new Torus(vec3(-1,0,4),.8,.4, new DiffuseMaterial(vec3(.4))),
+            new Torus(vec3(-1,.5,4),.6,.2, new DiffuseMaterial(vec3(.6))),
+            new Torus(vec3(-1,.75,4),.5,.1, new DiffuseMaterial(red)),
+            new Torus(vec3(1,0,3),.5,.1, new DiffuseMaterial(green)),
 
+            new Cylinder(vec3(-1,0,2), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
+            new Cylinder(vec3(-1,0,0), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
+            new Torus(vec3(-1,.8,0),.8,.3, new DiffuseMaterial(vec3(.8,.5,0)))
+                //buildBVH(new Group(CompetitionScene.genScene()).flattern(),5)
+        );
         /*scene.addShapes(
             new Group(
                     new Group(
@@ -97,7 +103,7 @@ public class Main {
             ));*/
 
         ArrayList<Light> lights = new ArrayList<>();
-        lights.add(new PointLight(vec3(0,8,0), vec3(50)));
+        lights.add(new PointLight(vec3(0,8,0), vec3(40)));
 
         Sampler tracer = raytrace(
                 new World(scene, lights)

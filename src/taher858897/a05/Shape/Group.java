@@ -183,6 +183,10 @@ public class Group implements Shape {
 
     @Override
     public boolean contains(Vec3 pos) {
+        pos = transformation.transfromPointToObject(pos);
+        for (Shape s: shapes) {
+            if (s.contains(pos)) return true;
+        }
         return false;
     }
     @Override

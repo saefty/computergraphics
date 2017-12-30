@@ -38,6 +38,9 @@ public class Transformation {
     public Vec3 transformPointToWorld(Vec3 in) {
         return  M.transformPoint(in);
     }
+    public Vec3 transformPointToObject(Vec3 in) {
+        return  MInverted.transformPoint(in);
+    }
 
     public Vec3 transformDirectionToWorld(Vec3 in) {
         return  M.transformDirection(in);
