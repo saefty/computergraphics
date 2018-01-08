@@ -33,7 +33,7 @@ import static taher858897.a05.Shape.Group.buildBVH;
 import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class Main {
-    public static String  filename = "doc/a11-1.png";
+    public static String  filename = "doc/a12/a12-%04d.png";
     public static int width  = 160*8;
     public static int height = 90*8;
     public static int threads = 8;
@@ -47,8 +47,8 @@ public class Main {
 
     private static final int START_FRAME = 494;
 
-    private static final boolean WITH_SOCKET = false;
-    private static final int CUR_SAMPLING_RATE = 100;//5*6;
+    private static final boolean WITH_SOCKET = true;
+    private static final int CUR_SAMPLING_RATE = 18;//5*6;
     private static Server[] SOCKETS = {
             new Server("saeftaher.de",9865, 20),
             new Server("localhost",9877, 24),
@@ -78,7 +78,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
         Mat4 transformation = Mat4.translate(vec3(1.2,2.0,2)).multiply(rotate(0,1,0,90)).multiply(rotate(-1,0,0,30));
-        transformation = Mat4.rotate(vec3(-1,0,0),45).multiply(Mat4.translate(vec3(0,.5,2)));
         //transformation = translate(2,.5,-2);
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
@@ -86,20 +85,10 @@ public class Main {
 
         Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new TransformedPicTexture("texture/woodPlanks.jpg", Mat4.scale(vec3(.4)))));
 
-        bg = null;
-        try {
-            bg = new Background(new BackgroundMaterial(new TransformedPicTexture("texture/skyPano.jpg", Mat4.scale(1,2,1))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new PicTexture("texture/gravel.jpg", black)));
-
         Group scene;
 
 
         long start_time = System.currentTimeMillis();
-        /*
         for (int i = START_FRAME; i < 1200; i++) {
             ArrayList<Light> lights = new ArrayList<>();
             if (i > 900/30 * 5 && i < 650)
@@ -120,38 +109,7 @@ public class Main {
                     new World(scene, lights)
                     , stationaryCamera);
             renderImage(image, tracer, String.format(filename,i));
-        }*/
-        scene = new Group(
-                ground,
-                bg
-        );
-
-        Group testSpheres = new Group(
-                new Sphere(vec3(2,0,-.5), 1,new ReflectionMaterial(new PicTexture("texture/world.jpg", black),0)),
-                new Sphere(vec3(-.5,0,-.8), 1, new DiffuseMaterial(new PicTexture("texture/world.jpg", black))),
-
-                new Group(new Cone(vec3(-2,-1,-.4),.8,20, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black)))),
-                new Group(new Cylinder(vec3(1.5,-1,.6),.2,.8, new DiffuseMaterial(new PicTexture("texture/wood.jpg", black))))
-        );
-        Material m = new DiffuseMaterial(new TransformedPicTexture("texture/stone.jpg", Mat4.scale(vec3(.4))));
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                testSpheres.addShape(
-                        new Group(new Cube(vec3(-2.5,-.9,0), vec3(-2,-.75,.25), m), Mat4.translate(-.5*i,.15*i,.25*j))
-                );
-            }
         }
-        scene.addShape(buildBVH(testSpheres.flattern(),1));
-
-        ArrayList<Light> lights = new ArrayList<>();
-        lights.add(new PointLight(vec3(0,8,0), vec3(80)));
-
-        RayTracer tracer = raytrace(
-                new World(scene, lights)
-                , stationaryCamera);
-
-        renderImage(image, tracer, filename);
-
         System.out.println(BoundingBox.misses);
         System.out.println((start_time-System.currentTimeMillis())/1000.0 + "s");
     }
