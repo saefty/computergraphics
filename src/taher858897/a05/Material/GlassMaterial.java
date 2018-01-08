@@ -15,10 +15,17 @@ import static taher858897.a05.Shape.Shape.EPSILON;
 public class GlassMaterial extends ReflectionMaterial implements Material{
     private static double  WORLD_REFRACTION_INDEX = 1.000272;
     private double refractionIndex;
+    private boolean affectedByDirectLight;
 
     public GlassMaterial(Vec3 color, double refractionIndex, double rnd_factor) {
         super(color, rnd_factor);
         this.refractionIndex = refractionIndex;
+        this.affectedByDirectLight = true;
+    }
+    public GlassMaterial(Vec3 color, double refractionIndex, double rnd_factor, boolean affectedByDirectLight) {
+        super(color, rnd_factor);
+        this.refractionIndex = refractionIndex;
+        this.affectedByDirectLight = affectedByDirectLight;
     }
     public GlassMaterial(Texture texture, double refractionIndex, double rndFactor) {
         super(texture, rndFactor);
@@ -83,5 +90,10 @@ public class GlassMaterial extends ReflectionMaterial implements Material{
     @Override
     public Vec3 albedo(Ray r, Hit h) {
         return super.albedo(r, h);
+    }
+
+    @Override
+    public boolean affectedByDirectLight() {
+        return affectedByDirectLight;
     }
 }

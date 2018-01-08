@@ -5,6 +5,8 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
+
 import static cgtools.Vec3.*;
 
 public class Plane implements Shape {
@@ -49,5 +51,10 @@ public class Plane implements Shape {
     @Override
     public boolean contains(Vec3 pos) {
         return false;
+    }
+
+    @Override
+    public void loadTextures() throws IOException {
+        material.loadTexture();
     }
 }

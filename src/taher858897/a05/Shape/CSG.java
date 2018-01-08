@@ -5,6 +5,7 @@ import taher858897.a05.Material.DiffuseMaterial;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +15,7 @@ import static cgtools.Vec3.*;
 import static java.lang.Math.abs;
 
 public interface CSG extends Shape {
-    class CSGUnion implements CSG{
+    class CSGUnion implements CSG {
     final Shape lhs;
     final Shape rhs;
 
@@ -46,6 +47,12 @@ public interface CSG extends Shape {
     public boolean contains(Vec3 pos) {
         return false;
     }
+
+        @Override
+        public void loadTextures() throws IOException {
+            lhs.loadTextures();
+            rhs.loadTextures();
+        }
     }
 
     class CSGDifference implements CSG{
@@ -96,6 +103,12 @@ public interface CSG extends Shape {
         return false;
     }
 
+        @Override
+        public void loadTextures() throws IOException {
+            lhs.loadTextures();
+            rhs.loadTextures();
+        }
+
     }
 
     class CSGIntersection implements CSG{
@@ -143,6 +156,12 @@ public interface CSG extends Shape {
      public boolean contains(Vec3 pos) {
          return false;
      }
+
+        @Override
+        public void loadTextures() throws IOException {
+            lhs.loadTextures();
+            rhs.loadTextures();
+        }
 
     }
 

@@ -22,6 +22,10 @@ public class RayTraceFragmentExcecutor {
 
     public static int threadIds=0;
 
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
     class NamedThreadFactory implements ThreadFactory{
         @Override
         public Thread newThread(Runnable r) {
@@ -31,6 +35,15 @@ public class RayTraceFragmentExcecutor {
             return t;
         }
     }
+    public void shutdown(){
+        executorService.shutdownNow();
+        try {
+            executorService.awaitTermination(2, TimeUnit.MINUTES);
+            rayTraceTasks.clear();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     public RayTraceFragmentExcecutor(int threadCount){
         executorService = Executors.newFixedThreadPool(threadCount, new NamedThreadFactory());
@@ -38,6 +51,7 @@ public class RayTraceFragmentExcecutor {
     }
 
     public Image executeTracer(Image img, RayTracer r, int sampleRate, int xBlockSize, int yBlockSize){
+        rayTraceTasks.clear();
         startTime = System.currentTimeMillis();
         int width = img.getWidth();
         int height = img.getHeight();
@@ -61,6 +75,7 @@ public class RayTraceFragmentExcecutor {
             rayTraceTasks.add(new RayTraceTaskFragment(img, r, sampleRate, 0, width, (yBlockSize * (yIterations -1)), height));
         }
         started = rayTraceTasks.size();
+        counter = 0;
         try {
             List<Future<RayTraceTaskFragment>> futures = executorService.invokeAll(rayTraceTasks);
             for (Future<RayTraceTaskFragment> future: futures) {

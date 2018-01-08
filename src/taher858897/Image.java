@@ -2,6 +2,7 @@ package taher858897;
 
 import cgtools.ImageWriter;
 import cgtools.Vec3;
+import taher858897.a05.Sampler.GammaSampler;
 import taher858897.a05.Sampler.Sampler;
 
 import java.io.IOException;
@@ -104,6 +105,28 @@ public class Image implements Serializable, Sampler{
                     sumB += color.z;
                 }
                 result.setPixel(x, y, new Vec3(sumR/size, sumG/size, sumB/size));
+            }
+        }
+        return result;
+    }
+
+    public static Image mergeAVGWithGamma(GammaSampler gammaSampler, Image ... images){
+        double size = images.length;
+        Image result = new Image(images[0]);
+        for (int x = 0; x < result.width; x++) {
+            for (int y = 0; y < result.height; y++) {
+                double sumR = 0;
+                double sumG = 0;
+                double sumB = 0;
+                for (Image i : images){
+                    if (i == null)
+                        return null;
+                    Vec3 color = i.getPixel(x,y);
+                    sumR += color.x;
+                    sumG += color.y;
+                    sumB += color.z;
+                }
+                result.setPixel(x, y, gammaSampler.gamma(new Vec3(sumR/size, sumG/size, sumB/size)));
             }
         }
         return result;

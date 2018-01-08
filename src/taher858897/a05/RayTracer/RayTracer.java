@@ -2,17 +2,21 @@ package taher858897.a05.RayTracer;
 
 import cgtools.Vec3;
 import taher858897.a05.Camera.Camera;
+import taher858897.a05.Material.GlassMaterial;
+import taher858897.a05.Material.ReflectionMaterial;
 import taher858897.a05.Sampler.Sampler;
 import taher858897.a05.Shape.Group;
 
+import java.sql.Ref;
 import java.util.ArrayList;
 
 import static cgtools.Vec3.*;
 import static java.lang.Math.*;
+import static taher858897.a05.Main.SHADOWS;
 
 public class RayTracer implements Sampler {
-    final Camera camera;
-    final World world;
+    public final Camera camera;
+    public final World world;
 
     public static final int DEPTH = 8;
 
@@ -39,9 +43,10 @@ public class RayTracer implements Sampler {
         Hit newHit = world.scene.intersect(r);
         ArrayList<Light.Sample> lightSamples = new ArrayList<>();
 
-        for (Light light : world.lights) {
-             lightSamples.add(light.sample(world, newHit, true));
-        }
+        if (SHADOWS && (newHit.material.affectedByDirectLight()))
+            for (Light light : world.lights) {
+                 lightSamples.add(light.sample(world, newHit, true));
+            }
 
         Vec3 emittedRadiance = newHit.material.emittedRadiance(r, newHit);
         Ray scatteredRay = newHit.material.scatteredRay(r, newHit);
@@ -52,7 +57,7 @@ public class RayTracer implements Sampler {
 
             for (Light.Sample s: lightSamples) {
                 double Lr = dotProduct(newHit.material.albedo(r, newHit), s.emission);
-                radiance = addFast(vec3(abs(Lr)), radiance);
+                radiance = addFast(multiply(abs(Lr), s.color), radiance);
             }
             // foggy
             //if (newHit.t > .5){

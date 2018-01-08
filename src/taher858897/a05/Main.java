@@ -14,11 +14,15 @@ import taher858897.a05.Sampler.GammaSampler;
 import taher858897.a05.Shape.Shape;
 import taher858897.a05.Textures.PicTexture;
 import taher858897.a05.Textures.TransformedPicTexture;
+import taher858897.a05.Threading.Executors.RayTraceExcecutor;
 import taher858897.a05.Threading.Executors.RayTraceFragmentExcecutor;
+import taher858897.a05.Threading.ImageMultithreadSocketWriter;
+import taher858897.a05.Threading.Server;
 
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static cgtools.Mat4.rotate;
 import static cgtools.Mat4.scale;
@@ -26,122 +30,134 @@ import static cgtools.Mat4.translate;
 import static cgtools.Vec3.*;
 import static java.lang.Math.*;
 import static taher858897.a05.Shape.Group.buildBVH;
+import static taher858897.a05.Shape.Shape.EPSILON;
 
 public class Main {
-    public static String  filename = "doc/b02.png";
-    public static int width  = 160 * 8;
-    public static int height = 90 * 8;
+    public static String  filename = "doc/a12/a12-%04d.png";
+    public static int width  = 160*8;
+    public static int height = 90*8;
     public static int threads = 8;
-    public static int xDim = 160;
-    public static int yDim = 90;
+    public static int xDim = 40;
+    public static int yDim = 45;
 
 
-    private static final int SAMPLING_RATE = 128;
+    private static final int SAMPLING_RATE = 100;
     private static final double GAMMA = 2.2;
+    public static boolean SHADOWS = true;
 
-    private static final boolean WITH_SOCKET = false;
+    private static final int START_FRAME = 494;
+
+    private static final boolean WITH_SOCKET = true;
+    private static final int CUR_SAMPLING_RATE = 18;//5*6;
+    private static Server[] SOCKETS = {
+            new Server("saeftaher.de",9865, 20),
+            new Server("localhost",9877, 24),
+            new Server("localhost",9871, 24),
+            
+
+    };
+    /*private static Server[] SOCKETS = {
+        new Server("saeftaher.de", 4*7),   // Server
+        // new Server("192.168.178.32", 2*6), // PC
+        // new Server("192.168.178.30", 2*7)  //   Laptop Mareike
+    };*/
+    /*private static Server[] SOCKETS = {
+        //new Server("sun65", 30),//Server
+        //new Server("sun66", 30),//Server
+        new Server("141.64.89.71", 40),//Server
+        //new Server("sun73", 30),//Server
+        //new Server("sun77", 30),//Server
+    };*/
 
 
-    public static Sampler raytrace(World world, Camera camera){
+    public static RayTracer raytrace(World world, Camera camera){
         RayTracer raySampler = new RayTracer(world, camera);
         return raySampler;
     }
 
     public static void main(String[] args) throws IOException {
         Image image = new Image(width, height);
-        Mat4 transformation = Mat4.translate(vec3(1.2,2.2,2)).multiply(rotate(0,1,0,90)).multiply(rotate(-1,0,0,45));
+        Mat4 transformation = Mat4.translate(vec3(1.2,2.0,2)).multiply(rotate(0,1,0,90)).multiply(rotate(-1,0,0,30));
         //transformation = translate(2,.5,-2);
         //transformation = Mat4.translate(vec3(0,.5,4.5)).multiply(Mat4.rotate(vec3(1,0,0),-10)); //2
         Camera stationaryCamera = new StationaryCamera(PI/2, width, height, transformation);
-        Background bg = null;
-        try {
-            bg = new Background(new BackgroundMaterial(new TransformedPicTexture("texture/skyPano.jpg", Mat4.scale(1,2,1))));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Background bg = new Background(new BackgroundMaterial(vec3(.35)));
 
-        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new PicTexture("texture/gravel.jpg", black)));
+        Shape ground = new Plane(vec3(0.0, -1, 0.0), vec3(0, 1, 0), new DiffuseMaterial(new TransformedPicTexture("texture/woodPlanks.jpg", Mat4.scale(vec3(.4)))));
 
-        Group scene = null;
-        scene = new Group(
-            ground,
-            bg,
-            new Cylinder(vec3(-1,0,4), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
-            new Torus(vec3(-1,0,4),.8,.4, new DiffuseMaterial(vec3(.4))),
-            new Torus(vec3(-1,.5,4),.6,.2, new DiffuseMaterial(vec3(.6))),
-            new Torus(vec3(-1,.75,4),.5,.1, new DiffuseMaterial(red)),
-            new Torus(vec3(1,0,3),.5,.1, new DiffuseMaterial(green)),
+        Group scene;
 
-            new Cylinder(vec3(-1,0,2), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
-            new Cylinder(vec3(-1,0,0), .4,2, new DiffuseMaterial(new PicTexture("texture/wood.jpg",black))),
-            new Torus(vec3(-1,.8,0),.8,.3, new DiffuseMaterial(vec3(.8,.5,0)))
-                //buildBVH(new Group(CompetitionScene.genScene()).flattern(),5)
-        );
-        /*scene.addShapes(
-            new Group(
-                    new Group(
-                        CSG.union(
-                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
-                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
-                        ),
-                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(-2,-1.5,-.8))
-                    ),
-                    new Group(
-                        CSG.difference(
-                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
-                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
-                        ),
-                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(0,-1.5,-.8))
-                    ),
-                    new Group(
-                            CSG.intersection(
-                                    new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
-                                    ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
-                            ),
-                            Mat4.scale(.5,.5,.5).multiply(Mat4.translate(2,-1.5,-.8))
-                    )
-            ));*/
-
-        ArrayList<Light> lights = new ArrayList<>();
-        lights.add(new PointLight(vec3(0,8,0), vec3(40)));
-
-        Sampler tracer = raytrace(
-                new World(scene, lights)
-                , stationaryCamera);
 
         long start_time = System.currentTimeMillis();
-        renderImage(image, tracer);
+        for (int i = START_FRAME; i < 1200; i++) {
+            ArrayList<Light> lights = new ArrayList<>();
+            if (i > 900/30 * 5 && i < 650)
+                lights.add(new ColorPointLight(vec3(1,2.2,4.5), vec3(13-6.5), green));
+            else if (i > 650 && i % 20 <= 3){
+                lights.add(new ColorPointLight(vec3((sin(2*PI*i/50)+1)*.5,2.2,2+2*(cos(2*PI*i/50))), vec3(13-6.5), green));
+            }
+            if ((i > 900/30 * 8 && i < 650) || (i % 10 <= 8 && i > 650))
+                lights.add(new ColorPointLight(vec3(-1,2.5,.5), vec3(12-3), red));
+            if (i > 900/30 * 12)
+                lights.add(new ColorPointLight(vec3(-4.2,1,9), vec3(15-4), blue));
+            scene = new Group(
+                    ground,
+                    bg ,
+                    buildBVH(new Group(CompetitionScene.genScene(i)).flattern(),1)
+            );
+            RayTracer tracer = raytrace(
+                    new World(scene, lights)
+                    , stationaryCamera);
+            renderImage(image, tracer, String.format(filename,i));
+        }
+
         System.out.println(BoundingBox.misses);
         System.out.println((start_time-System.currentTimeMillis())/1000.0 + "s");
     }
 
-    public static void renderImage(Image image, Sampler tracer){
-       // SampleMultithread sampleMultithread = new SampleMultithread(image, tracer, (SAMPLING_RATE*8)/8,4);
-        RayTraceFragmentExcecutor rayTraceFragmentExcecutor = new RayTraceFragmentExcecutor(threads);
-        image = rayTraceFragmentExcecutor.executeTracer(image, (RayTracer) tracer, SAMPLING_RATE, xDim, yDim);
-        //RayTraceExcecutor rayTraceExcecutor = new RayTraceExcecutor(4);
-        //image = rayTraceExcecutor.executeTracer(image, (RayTracer) tracer, SAMPLING_RATE, 4,4);
+    public static void renderImage(Image image, RayTracer tracer, String filename){
+        System.out.println("------------------------------------------------------");
+        System.out.println("---------------- " + filename + "-----------------");
+        System.out.println("------------------------------------------------------");
         try {
-            /*ImageMultithreadSocketWriter writer = null;
-            Thread socketThread = null;
+            tracer.world.scene.loadTextures();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        RayTraceFragmentExcecutor rayTraceFragmentExcecutor = new RayTraceFragmentExcecutor(threads);
+        try {
+            ArrayList<ImageMultithreadSocketWriter> writers = new ArrayList<>();
+            ImageMultithreadSocketWriter writer = null;
+            ArrayList<Thread> socketThreads = new ArrayList<>();
 
             if (WITH_SOCKET){
-                writer   = new ImageMultithreadSocketWriter("saeftaher.de", 8770, image, tracer, (SAMPLING_RATE*4)/8);
-                socketThread = new Thread(writer);
+                for (Server server: SOCKETS) {
+                    writer   = new ImageMultithreadSocketWriter(server.server, server.port, image, tracer, server.sampleRate);
+                    writers.add(writer);
+                    socketThreads.add(new Thread(writer));
+                }
+
             }
 
 
-            sampleMultithread.startMultiThreading();
-            if (WITH_SOCKET) socketThread.start();
+            for (Thread socketThread: socketThreads) {
+                socketThread.start();
+            }
+            image = rayTraceFragmentExcecutor.executeTracer(image, tracer, CUR_SAMPLING_RATE, xDim, yDim);
 
-            if (WITH_SOCKET) socketThread.join();
-            sampleMultithread.join();
-            image = sampleMultithread.getImages();
-            if (WITH_SOCKET) image = Image.mergeAVG(writer.RESULT_IMG, image);*/
+            Image[] images = new Image[socketThreads.size()+1];
+            for (int i = 0; i < socketThreads.size(); i++) {
+                Thread socketThread = socketThreads.get(i);
+                socketThread.join();
+                images[i] = writers.get(i).RESULT_IMG;
+
+            }
+            images[images.length-1] = image;
+            if (WITH_SOCKET) image = Image.mergeAVG(images);
         } catch ( Exception e) {
             e.printStackTrace();
         }
-        
+
         image.sample(
             new GammaSampler(image, GAMMA)
         );
@@ -502,3 +518,27 @@ public class Main {
 
 }
 
+        /*scene.addShapes(
+            new Group(
+                    new Group(
+                        CSG.union(
+                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                        ),
+                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(-2,-1.5,-.8))
+                    ),
+                    new Group(
+                        CSG.difference(
+                                new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                        ),
+                        Mat4.scale(.5,.5,.5).multiply(Mat4.translate(0,-1.5,-.8))
+                    ),
+                    new Group(
+                            CSG.intersection(
+                                    new Cube(vec3(0-.8,.5-.8,-.5-.8), vec3(0+.8,.5+.8,-.5+.8), new DiffuseMaterial(new PicTexture("texture/world.jpg", black)))
+                                    ,new Sphere(vec3(0,.5,-.5), 1, new DiffuseMaterial(new TransformedPicTexture("texture/wood.jpg", Mat4.scale(vec3(6)))))
+                            ),
+                            Mat4.scale(.5,.5,.5).multiply(Mat4.translate(2,-1.5,-.8))
+                    )
+            ));*/

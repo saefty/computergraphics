@@ -5,6 +5,8 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
+
 import static cgtools.Vec3.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -14,22 +16,26 @@ public class Cube implements Shape {
     final Vec3 position;
     final Vec3 position_max;
     final Material material;
+    final BoundingBox bb;
 
     public Cube(double size, Vec3 position, Material m) {
         this.position = position;
         this.position_max = new Vec3(position.x + size, position.y+size, position.z+size);
         this.material = m;
+        this.bb = bounds();
+
     }
 
     public Cube(Vec3 min, Vec3 max, Material m){
         this.position = new Vec3(min(min.x,max.x), min(min.y,max.y), min(min.z, max.z));
         this.position_max = new Vec3(max(min.x, max.x), max(min.y, max.y), max(min.z,max.z));
         this.material = m;
+        this.bb = bounds();
     }
 
     @Override
     public Hit intersect(Ray r) {
-        if (!bounds().intersect(r))return null;
+        if (!bb.intersect(r))return null;
         double X_MIN = position.x;
         double X_MAX = position_max.x;
         double Y_MIN = position.y;
@@ -106,6 +112,7 @@ public class Cube implements Shape {
 
     @Override
     public BoundingBox bounds() {
+        if (bb != null) return bb;
         BoundingBox bb = new BoundingBox(vec3(0), vec3(0));
         bb = bb.extend(subtract(position, vec3(EPSILON)));
         bb = bb.extend(add(position_max, vec3(EPSILON)));
@@ -115,5 +122,10 @@ public class Cube implements Shape {
     @Override
     public boolean contains(Vec3 v) {
         return position.x <= v.x && position.y <= v.y && position.z <= v.z && position_max.x >= v.x && position_max.y >= v.y && position_max.z >= v.z;
+    }
+
+    @Override
+    public void loadTextures() throws IOException {
+        material.loadTexture();
     }
 }

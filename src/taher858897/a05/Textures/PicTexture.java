@@ -29,4 +29,9 @@ public class PicTexture implements Texture {
     public Vec3 getPicture(Vec3 uv) {
         return imageTexture.samplePoint(uv.x, uv.y);
     }
+
+    @Override
+    public void loadTexture() throws IOException {
+        imageTexture.load();
+    }
 }

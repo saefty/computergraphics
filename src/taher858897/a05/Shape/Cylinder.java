@@ -5,6 +5,8 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
+
 import static cgtools.Vec3.*;
 import static java.lang.Math.atan;
 import static java.lang.Math.atan2;
@@ -86,6 +88,14 @@ public class Cylinder implements Shape {
 
     @Override
     public boolean contains(Vec3 pos) {
-        return false;
+        Vec3 tmp = subtract(vec3(position.x, pos.y, position.z), pos);
+        Vec3 tmpHeight = subtract(vec3(pos.x, position.y, pos.z), pos);
+        if (tmpHeight.length() > height+EPSILON || pos.y < position.y-EPSILON) return false;
+        return dotProduct(tmp, tmp)-EPSILON*100 < radius*radius;
+    }
+
+    @Override
+    public void loadTextures() throws IOException {
+        material.loadTexture();
     }
 }

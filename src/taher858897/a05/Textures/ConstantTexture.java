@@ -1,7 +1,7 @@
 package taher858897.a05.Textures;
 
 import cgtools.Vec3;
-import taher858897.a05.Sampler.Sampler;
+import taher858897.a05.Main;
 
 public class ConstantTexture implements Texture {
     public final Vec3 color;
@@ -18,5 +18,9 @@ public class ConstantTexture implements Texture {
     @Override
     public Vec3 getPicture(Vec3 uv) {
         return color;
+    }
+
+    @Override
+    public void loadTexture() {
     }
 }

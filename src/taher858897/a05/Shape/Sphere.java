@@ -5,6 +5,8 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
+
 import static cgtools.Vec3.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -29,6 +31,11 @@ public class Sphere implements Shape {
     public boolean contains(Vec3 x) {
         Vec3 tmp = subtract(position, x);
         return dotProduct(tmp, tmp) < radius*radius;
+    }
+
+    @Override
+    public void loadTextures() throws IOException {
+        material.loadTexture();
     }
 
     public Vec3 getNormVecAtPoint(Vec3 x){

@@ -7,6 +7,7 @@ import taher858897.a05.Material.Material;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,8 @@ public class Group implements Shape {
     private Cube hitBox;
     private BoundingBox boundingBox;
     private Transformation transformation;
+
+
 
     public Group(ArrayList<Shape> shapes) {
         this.shapes = shapes;
@@ -192,5 +195,11 @@ public class Group implements Shape {
     @Override
     public String toString() {
         return "Group:" + shapes.toString();
+    }
+
+    public void loadTextures() throws IOException {
+        for (Shape s: shapes) {
+            s.loadTextures();
+        }
     }
 }

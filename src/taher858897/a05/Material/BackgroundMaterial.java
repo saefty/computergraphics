@@ -6,6 +6,8 @@ import taher858897.a05.RayTracer.Ray;
 import taher858897.a05.Textures.ConstantTexture;
 import taher858897.a05.Textures.Texture;
 
+import java.io.IOException;
+
 public class BackgroundMaterial implements Material{
     final Texture texture;
 
@@ -35,5 +37,15 @@ public class BackgroundMaterial implements Material{
     @Override
     public Vec3 albedo(Ray r, Hit h) {
         return Vec3.black;
+    }
+
+    @Override
+    public void loadTexture() throws IOException {
+        texture.loadTexture();
+    }
+
+    @Override
+    public boolean affectedByDirectLight() {
+        return true;
     }
 }

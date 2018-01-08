@@ -8,9 +8,11 @@ import cgtools.Mat4;
 import cgtools.Vec3;
 import taher858897.a05.RayTracer.Ray;
 
+import java.io.Serializable;
+
 import static cgtools.Vec3.*;
 
-public class BoundingBox {
+public class BoundingBox implements Serializable {
     final Vec3 min, max;
     static public boolean enabled = true;
     static public long hits = 0;

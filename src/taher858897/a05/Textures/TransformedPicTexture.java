@@ -30,4 +30,9 @@ public class TransformedPicTexture implements Texture {
         Vec3 transformed = transformation.transformPoint(uv);
         return imageTexture.samplePoint(transformed.x, transformed.y);
     }
+
+    @Override
+    public void loadTexture() throws IOException {
+        imageTexture.load();
+    }
 }

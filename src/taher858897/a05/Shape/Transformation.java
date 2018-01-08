@@ -5,7 +5,9 @@ import cgtools.Vec3;
 import taher858897.a05.RayTracer.Hit;
 import taher858897.a05.RayTracer.Ray;
 
-public class Transformation {
+import java.io.Serializable;
+
+public class Transformation implements Serializable{
     private final Mat4 M;
     private final Mat4 MInvertedTransposed;
     private final Mat4 MInverted;

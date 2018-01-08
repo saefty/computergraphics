@@ -6,6 +6,8 @@ import taher858897.a05.RayTracer.Ray;
 import taher858897.a05.Textures.ConstantTexture;
 import taher858897.a05.Textures.Texture;
 
+import java.io.IOException;
+
 import static cgtools.Vec3.dotProduct;
 import static cgtools.Vec3.normalize;
 import static taher858897.a05.Shape.Shape.EPSILON;
@@ -47,5 +49,15 @@ public class ReflectionMaterial implements Material{
         } else {
             return texture.getPicture(h.textureCords);
         }
+    }
+
+    @Override
+    public void loadTexture() throws IOException{
+        texture.loadTexture();
+    }
+
+    @Override
+    public boolean affectedByDirectLight() {
+        return true;
     }
 }

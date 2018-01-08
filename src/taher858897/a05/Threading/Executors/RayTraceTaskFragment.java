@@ -32,12 +32,17 @@ public class RayTraceTaskFragment implements Callable{
 
     @Override
     public Object call() throws Exception {
-        long start = System.currentTimeMillis();
-        System.out.println(Thread.currentThread().getName() + " start x:" + x_start +"-" + x_end + " y:" + y_start +"-" + y_end);
-        img.sample(stratifiedSampler, x_start, x_end, y_start, y_end);
-        System.out.println(Thread.currentThread().getName()  + " done");
-        RayTraceFragmentExcecutor.counter++;
-        System.out.println(getStats(start));
+        try{
+            long start = System.currentTimeMillis();
+            System.out.println(Thread.currentThread().getName() + " start x:" + x_start +"-" + x_end + " y:" + y_start +"-" + y_end);
+            img.sample(stratifiedSampler, x_start, x_end, y_start, y_end);
+            System.out.println(Thread.currentThread().getName()  + " done");
+            RayTraceFragmentExcecutor.counter++;
+            System.out.println(getStats(start));
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            //ok let's get out of here
+        }
         return this;
     }
 
